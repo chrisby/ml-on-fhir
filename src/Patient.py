@@ -15,8 +15,3 @@ class Patient:
 			return name_list
 		else:
 			return "Patient has no name attribute."
-
-
-		else:
-			# Empty patient
-			return "Empty Patient"
