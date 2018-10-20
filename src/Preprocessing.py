@@ -24,11 +24,11 @@ class Preprocessing():
 			return needed_func_name
 
 	
-	def preprocess_patient_address(self, X: List[Union[Patient]]):
-		return ['test']
-
-
 	def preprocess_on(self, X: List[Union[Patient]], attr: str):
 		preprocessing_func = self.get_preprocessing_func(attr)
 		if preprocessing_func:
 			return getattr(self, preprocessing_func)(X)
+
+	def preprocess_patient_address(self, X: List[Union[Patient]]):
+		return ['test']
+
