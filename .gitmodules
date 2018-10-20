@@ -1,0 +1,6 @@
+[submodule "hapi"]
+	path = hapi
+	url = https://github.com/smart-on-fhir/hapi.git
+[submodule "synthea"]
+	path = synthea
+	url = https://github.com/synthetichealth/synthea.git
