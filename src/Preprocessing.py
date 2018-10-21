@@ -1,3 +1,5 @@
+import numpy as np
+
 from Patient import Patient
 from typing import Union, List
 
@@ -24,11 +26,14 @@ class Preprocessing():
 			return needed_func_name
 
 	
-	def preprocess_on(self, X: List[Union[Patient]], attr: str):
-		preprocessing_func = self.get_preprocessing_func(attr)
-		if preprocessing_func:
-			return getattr(self, preprocessing_func)(X)
+	def preprocess_on(self, X: List[Union[Patient]], attrs: List[str]):
+		preprocessed_data = np.empty(shape=(len(X), len(attrs)))
+		preprocessing_funcs = [self.get_preprocessing_func(attr) for attr in attrs]
+		for attr_index, preprocessing_func in enumerate(preprocessing_funcs):
+			preprocessed_data[:,attr_index] = getattr(self, preprocessing_func)(X)
+		return preprocessed_data
 
-	def preprocess_patient_address(self, X: List[Union[Patient]]):
-		return ['test']
+
+	def preprocess_patient_age(self, X: List[Patient]):
+		return [x.age for x in X]
 

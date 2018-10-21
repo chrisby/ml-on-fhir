@@ -30,7 +30,7 @@ class FHIRClient():
 		r = requests.get(self._build_url('Patient', _count=max_count))
 
 		if self._check_status(r.status_code):
-			return [Patient(d['resource']) for d in r.json()['entry'] ]
+			return [ Patient(d['resource']) for d in r.json()['entry'] ]
 		else:
 			r.raise_for_status()
 
