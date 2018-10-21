@@ -3,6 +3,8 @@ import numpy as np
 from Patient import Patient
 from typing import Union, List
 
+from sklearn.preprocessing import LabelEncoder
+
 class Preprocessing():
 
 	def __init__(self, fhir_class: Union[Patient]):
@@ -27,7 +29,7 @@ class Preprocessing():
 
 	
 	def preprocess_on(self, X: List[Union[Patient]], attrs: List[str]):
-		preprocessed_data = np.empty(shape=(len(X), len(attrs)))
+		preprocessed_data = np.empty(shape=(len(X), len(attrs)), dtype=object)
 		preprocessing_funcs = [self.get_preprocessing_func(attr) for attr in attrs]
 		for attr_index, preprocessing_func in enumerate(preprocessing_funcs):
 			preprocessed_data[:,attr_index] = getattr(self, preprocessing_func)(X)
@@ -36,4 +38,8 @@ class Preprocessing():
 
 	def preprocess_patient_age(self, X: List[Patient]):
 		return [x.age for x in X]
+
+	def preprocess_patient_gender(self, X: List[Patient]):
+		le = LabelEncoder()
+		return le.fit_transform([x.gender for x in X])
 
