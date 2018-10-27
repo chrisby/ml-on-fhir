@@ -37,7 +37,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
     @property
     def label_attrs(self):
-        """list: List of fhir attributes that will be used as labels. Currently no multi labels allowes"""
+        """list: List of fhir attributes that will be used as labels. Currently no multi labels allows"""
         return self._label_attrs
 
     @label_attrs.setter
@@ -110,7 +110,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
     def fit(self, data: List[Union[Patient]], sklearn_clf: BaseEstimator, **fit_params):
         """
         Method that generates and executes the preprocessing and training pipeline.
-        For each fhir attribute its respective preprocesser will be used
+        For each fhir attribute its respective preprocessor will be used
 
             Args:
                 data (list): 	A list of fhir objects (e.g. Patient)

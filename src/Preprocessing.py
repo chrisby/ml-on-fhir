@@ -14,7 +14,7 @@ from sklearn.utils.validation import column_or_1d
 class FHIRLabelEncoder(BaseEstimator):
     """
     This is a simple wrapper of sklearn's LabelEncoder as at the time of
-    development it was not cimpatible with sklearn.compose.ColumnTransfer
+    development it was not compatible with sklearn.compose.ColumnTransfer
     """
 
     @classmethod
@@ -37,7 +37,9 @@ class FHIRLabelEncoder(BaseEstimator):
 
 
 class PatientBirthdateProcessor(BaseEstimator):
-
+	"""
+	Calculates the age to use birthdate as a feature
+	"""
     @classmethod
     def _get_param_names(self):
         return super()._get_param_names()
@@ -61,7 +63,9 @@ class PatientBirthdateProcessor(BaseEstimator):
 
 
 class PatientGenderProcessor(FHIRLabelEncoder):
-
+	"""
+	Encodes gender gender into integer values
+	"""
     @classmethod
     def _get_param_names(self):
         return super()._get_param_names()
