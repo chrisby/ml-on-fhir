@@ -1,45 +1,79 @@
+from inspect import signature
+import datetime as dt
 import numpy as np
-
-from Patient import Patient
 from typing import Union, List
 
+from Patient import Patient
+from FHIRResources import date_format
+
+from sklearn.base import BaseEstimator
 from sklearn.preprocessing import LabelEncoder
-
-class Preprocessing():
-
-	def __init__(self, fhir_class: Union[Patient]):
-		if type(fhir_class) != type:
-			raise ValueError("""{} is not a type but a {}. 
-				Please use the desired class you want to process (e.g. Patient)""".format(fhir_class, type(fhir_class)))
-		else:
-			self.fhir_class = fhir_class
-
-	def get_preprocessing_func(self, attr: str):
-		needed_module_name = self.fhir_class.__module__.lower()
-		needed_func_name = ('_'.join(['preprocess_{}'.format(needed_module_name), attr]))
-		if needed_func_name not in dir(self):
-			available_attributes = [x.split('_')[2] for x in dir(self) if needed_module_name in x ]
-			if len(available_attributes) > 0:
-				raise NotImplementedError("""Sorry, we don't know how to preprocess the attribute {}. 
-					Available attributes are {}.""".format(attr, ', '.join(available_attributes)))
-			else:
-				raise NotImplementedError("Sorry, we don't know how to preprocess the attribute {}.".format(attr))
-		else:
-			return needed_func_name
-
-	
-	def preprocess_on(self, X: List[Union[Patient]], attrs: List[str]):
-		preprocessed_data = np.empty(shape=(len(X), len(attrs)), dtype=object)
-		preprocessing_funcs = [self.get_preprocessing_func(attr) for attr in attrs]
-		for attr_index, preprocessing_func in enumerate(preprocessing_funcs):
-			preprocessed_data[:,attr_index] = getattr(self, preprocessing_func)(X)
-		return preprocessed_data
+from sklearn.utils.validation import column_or_1d
 
 
-	def preprocess_patient_age(self, X: List[Patient]):
-		return [x.age for x in X]
+class FHIRLabelEncoder(BaseEstimator):
+    """
+    This is a simple wrapper of sklearn's LabelEncoder as at the time of
+    development it was not cimpatible with sklearn.compose.ColumnTransfer
+    """
 
-	def preprocess_patient_gender(self, X: List[Patient]):
-		le = LabelEncoder()
-		return le.fit_transform([x.gender for x in X])
+    @classmethod
+    def _get_param_names(self):
+        return super()._get_param_names()
 
+    def set_params(self, **params):
+        return super().set_params(**params)
+
+    def get_params(self, deep=True):
+        return super().get_params(deep=deep)
+
+    def transform(self, X, **transform_params):
+        return self.y
+
+    def fit(self, X, y=None, **fit_params):
+        le = LabelEncoder()
+        self.y = le.fit_transform(column_or_1d(X)).reshape(-1, 1)
+        return self
+
+
+class PatientBirthdateProcessor(BaseEstimator):
+
+    @classmethod
+    def _get_param_names(self):
+        return super()._get_param_names()
+
+    def set_params(self, **params):
+        return super().set_params(**params)
+
+    def get_params(self, deep=True):
+        return super().get_params(deep=deep)
+
+    def transform(self, X, **transform_params):
+        ages = []
+        for birthdate in X:
+            b_date = dt.datetime.strptime(birthdate[0], date_format)
+            ages.append([int(
+                            (dt.datetime.now().date() - b_date.date()).days / 365)])
+        return np.array(ages)
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+
+class PatientGenderProcessor(FHIRLabelEncoder):
+
+    @classmethod
+    def _get_param_names(self):
+        return super()._get_param_names()
+
+    def set_params(self, **params):
+        return super().set_params(**params)
+
+    def get_params(self, deep=True):
+        return super().get_params(deep=deep)
+
+    def transform(self, X, **transform_params):
+        return super().transform(X, **transform_params)
+
+    def fit(self, X, y=None, **fit_params):
+        return super().fit(X, y, **fit_params)
