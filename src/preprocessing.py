@@ -37,9 +37,9 @@ class FHIRLabelEncoder(BaseEstimator):
 
 
 class PatientBirthdateProcessor(BaseEstimator):
-	"""
-	Calculates the age to use birthdate as a feature
-	"""
+    """
+    Calculates the age to use birthdate as a feature 
+    """
     @classmethod
     def _get_param_names(self):
         return super()._get_param_names()
@@ -63,9 +63,9 @@ class PatientBirthdateProcessor(BaseEstimator):
 
 
 class PatientGenderProcessor(FHIRLabelEncoder):
-	"""
-	Encodes gender gender into integer values
-	"""
+    """
+    Encodes gender gender into integer values
+    """
     @classmethod
     def _get_param_names(self):
         return super()._get_param_names()
