@@ -19,6 +19,11 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
     Args:
         fhir_class (Union[Patient]): A class from the fhir_objects module (e.g. Patient)
         feature_attrs (List[str]): A list of fhir attributes from respective fhir_class
+        label_attrs (List[str]): A list of (as of now) one fhir attribute from respective fhir_class to be used as label
+
+    Attributes:
+        transformers (dict): Dictionary that maps a fhir attribute to its respective transformer class 
+                             (e.g preprocessing.PatientBirthdateProcessor)
     """
 
     def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]):
