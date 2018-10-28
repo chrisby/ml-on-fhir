@@ -104,19 +104,6 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
     def transformers(self):
         del self._transformers
 
-    def _get_preprocessing_classname(self, module_name: str, fhir_attr: str):
-        """
-        Generates a string for the import of respective preprocessing class
-
-        Args:
-            module_name (str):	The module name of respective fhir_class (e.g. fhir_objects.Patient)
-            fhir_attr (str): 	The fhir attribute for which we want to import the preprocessing class (e.g. age)
-
-        Returns:
-            str: Respective class name 
-        """
-        return ''.join([module_name.split('.')[1].capitalize(), fhir_attr.capitalize(), "Processor"])
-
     def transform(self, X, **transform_params):
         pass
 
@@ -154,6 +141,25 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
         return X, y, self.clf
 
+    def predict(self, X):
+        return self.clf.predict(X)
+
+    def score(self, X, y=None):
+        return self.clf.score(X, y)
+
+    def _get_preprocessing_classname(self, module_name: str, fhir_attr: str):
+        """
+        Generates a string for the import of respective preprocessing class
+
+        Args:
+            module_name (str):	The module name of respective fhir_class (e.g. fhir_objects.Patient)
+            fhir_attr (str): 	The fhir attribute for which we want to import the preprocessing class (e.g. age)
+
+        Returns:
+            str: Respective class name 
+        """
+        return ''.join([module_name.split('.')[1].capitalize(), fhir_attr.capitalize(), "Processor"])
+
     def _get_data_matrix(self, data: List[Union[Patient]]):
         """
         Transform the list of fhir objects into a list of their attributes
@@ -181,8 +187,3 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
             pipeline.append((step_name, step_class, [idx]))
         return pipeline
 
-    def predict(self, X):
-        return self.clf.predict(X)
-
-    def score(self, X, y=None):
-        return self.clf.score(X, y)
