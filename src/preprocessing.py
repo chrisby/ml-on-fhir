@@ -13,6 +13,7 @@ from sklearn.utils.validation import column_or_1d
 
 import inspect
 
+
 def register_preprocessor(processor_class: BaseEstimator):
     """
     Registers a new preprocessing class with MLOnFhir.
@@ -24,25 +25,17 @@ def register_preprocessor(processor_class: BaseEstimator):
     preprocessing_module = inspect.getmodule(register_preprocessor)
     preprocessing_class_name = processor_class.__name__
     if hasattr(preprocessing_module, preprocessing_class_name):
-        logging.warning("Preprocessor {} already exists. Will be overridden.".format(preprocessing_class_name))
+        logging.warning("Preprocessor {} already exists. Will be overridden.".format(
+            preprocessing_class_name))
 
     setattr(preprocessing_module, preprocessing_class_name, processor_class)
+
 
 class FHIRLabelEncoder(BaseEstimator):
     """
     This is a simple wrapper of sklearn's LabelEncoder as at the time of
     development it was not compatible with sklearn.compose.ColumnTransfer
     """
-
-    @classmethod
-    def _get_param_names(self):
-        return super()._get_param_names()
-
-    def set_params(self, **params):
-        return super().set_params(**params)
-
-    def get_params(self, deep=True):
-        return super().get_params(deep=deep)
 
     def transform(self, X, **transform_params):
         return self.y
@@ -52,21 +45,11 @@ class FHIRLabelEncoder(BaseEstimator):
         self.y = le.fit_transform(column_or_1d(X)).reshape(-1, 1)
         return self
 
- 
 
 class PatientGenderProcessor(FHIRLabelEncoder):
     """
     Encodes gender gender into integer values
     """
-    @classmethod
-    def _get_param_names(self):
-        return super()._get_param_names()
-
-    def set_params(self, **params):
-        return super().set_params(**params)
-
-    def get_params(self, deep=True):
-        return super().get_params(deep=deep)
 
     def transform(self, X, **transform_params):
         return super().transform(X, **transform_params)
@@ -79,15 +62,6 @@ class PatientBirthdateProcessor(BaseEstimator):
     """
     Calculates the age to use birthdate as a feature 
     """
-    @classmethod
-    def _get_param_names(self):
-        return super()._get_param_names()
-
-    def set_params(self, **params):
-        return super().set_params(**params)
-
-    def get_params(self, deep=True):
-        return super().get_params(deep=deep)
 
     def transform(self, X, **transform_params):
         ages = []
@@ -99,4 +73,3 @@ class PatientBirthdateProcessor(BaseEstimator):
 
     def fit(self, X, y=None, **fit_params):
         return self
-
