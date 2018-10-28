@@ -3,8 +3,8 @@ import datetime as dt
 import numpy as np
 from typing import Union, List
 
-from Patient import Patient
-from FHIRResources import date_format
+from fhir_objects.Patient import Patient
+from fhir_resources import date_format
 
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import LabelEncoder

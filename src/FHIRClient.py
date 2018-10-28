@@ -1,5 +1,5 @@
 import requests
-from Patient import Patient
+from fhir_objects.Patient import Patient
 from os.path import join
 
 

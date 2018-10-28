@@ -3,7 +3,7 @@ from typing import List, Union
 from importlib import import_module
 import logging
 
-from Patient import Patient
+from fhir_objects.Patient import Patient
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.neighbors import KNeighborsClassifier
@@ -13,13 +13,18 @@ from sklearn.utils.validation import column_or_1d
 
 class MLOnFHIR(BaseEstimator, ClassifierMixin):
     """
+    Core class that acts as a classifier and preprocessing entity.
+    It creates the preprocessing pipeline based on fhir attributes and their preprocessing transformers. 
+
+    Args:
+        fhir_class (Union[Patient]): A class from the fhir_objects module (e.g. Patient)
+        feature_attrs (List[str]): A list of fhir attributes from respective fhir_class
     """
 
     def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]):
         self.fhir_class = fhir_class
         self.label_attrs = label_attrs
         self.feature_attrs = feature_attrs
-        # Import transformers for preprocessing of fhir features
         self.transformers = (feature_attrs, label_attrs)
 
     @property
@@ -94,15 +99,18 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
     def transformers(self):
         del self._transformers
 
-    def _get_preprocessing_classname(self, fhir_class: str, fhir_attr: str):
+    def _get_preprocessing_classname(self, module_name: str, fhir_attr: str):
         """
         Generates a string for the import of respective preprocessing class
 
         Args:
-                fhir_class (str):	The module name of respective fhir_class (e.g. Patient)
-                fhir_attr (str): 	The fhir attribute for which we want to import the preprocessing class (e.g. age)
+            module_name (str):	The module name of respective fhir_class (e.g. fhir_objects.Patient)
+            fhir_attr (str): 	The fhir attribute for which we want to import the preprocessing class (e.g. age)
+
+        Returns:
+            str: Respective class name 
         """
-        return ''.join([fhir_class.capitalize(), fhir_attr.capitalize(), "Processor"])
+        return ''.join([module_name.split('.')[1].capitalize(), fhir_attr.capitalize(), "Processor"])
 
     def transform(self, X, **transform_params):
         pass
@@ -112,9 +120,12 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         Generates and executes the preprocessing and training pipeline.
         For each fhir attribute its respective preprocessor will be used
 
-            Args:
-                data (list): 	A list of fhir objects (e.g. Patient)
-                sklearn_clf (BaseEstimator): A sklearn classifier object
+        Args:
+            data (list): 	A list of fhir objects (e.g. Patient)
+            sklearn_clf (BaseEstimator): Instance of a sklearn classifier
+
+        Returns:
+            (list, list, object): A tuple of complete data matrix, labels and trained clf
         """
 
         # Get list of patients and their fhir attrs represented as list
@@ -122,12 +133,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         data_matrix = self._get_data_matrix(data)
 
         # Generate feature and label preprocessing pipeline
-        pipeline = []
-        for idx, fhir_attr in enumerate(self.feature_attrs + self.label_attrs):
-            step_name = "{}_{}".format(idx, fhir_attr)
-            step_class = self.transformers[fhir_attr]
-            pipeline.append((step_name, step_class, [idx]))
-
+        pipeline = self._generate_pipeline()
         ct = ColumnTransformer(pipeline)
 
         logging.info("Preprocessing data")
@@ -137,20 +143,38 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         y = complete_data_matrix[:, len(self.feature_attrs):]
 
         logging.info("Started training of clf")
-        self.clf = sklearn_clf()
+        self.clf = sklearn_clf
         self.clf.fit(X, column_or_1d(y))
         logging.info("Training completed")
 
         return X, y, self.clf
 
     def _get_data_matrix(self, data: List[Union[Patient]]):
-        """Transform the list of fhir objects into a list of their attributes
+        """
+        Transform the list of fhir objects into a list of their attributes
 
         Args:
             data (list): 	A list of fhir objects (e.g. Patient)
+
+        Returns:
+            list: A list of fhir attribute dictionaries for fhir object of the input
         """
         return [[getattr(fhir_obj, fhir_attr)
                  for fhir_attr in self.feature_attrs + self.label_attrs] for fhir_obj in data]
+
+    def _generate_pipeline(self):
+        """
+        Generates a list of tuples of the form (name, preprocessor_class, [col_index])
+
+        Returns:
+            list: A list to be used in sklearn.compose.ColumnTransformer
+        """
+        pipeline = []
+        for idx, fhir_attr in enumerate(self.feature_attrs + self.label_attrs):
+            step_name = "{}_{}".format(idx, fhir_attr)
+            step_class = self.transformers[fhir_attr]
+            pipeline.append((step_name, step_class, [idx]))
+        return pipeline
 
     def predict(self, X):
         return self.clf.predict(X)
