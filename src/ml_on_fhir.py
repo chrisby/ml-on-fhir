@@ -109,7 +109,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
     def fit(self, data: List[Union[Patient]], sklearn_clf: BaseEstimator, **fit_params):
         """
-        Method that generates and executes the preprocessing and training pipeline.
+        Generates and executes the preprocessing and training pipeline.
         For each fhir attribute its respective preprocessor will be used
 
             Args:
@@ -119,8 +119,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
         # Get list of patients and their fhir attrs represented as list
         logging.info("Extracting attributes from data set")
-        data_matrix = [[getattr(fhir_obj, fhir_attr)
-                        for fhir_attr in self.feature_attrs + self.label_attrs] for fhir_obj in data]
+        data_matrix = self._get_data_matrix(data)
 
         # Generate feature and label preprocessing pipeline
         pipeline = []
@@ -143,6 +142,15 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         logging.info("Training completed")
 
         return X, y, self.clf
+
+    def _get_data_matrix(self, data: List[Union[Patient]]):
+        """Transform the list of fhir objects into a list of their attributes
+
+        Args:
+            data (list): 	A list of fhir objects (e.g. Patient)
+        """
+        return [[getattr(fhir_obj, fhir_attr)
+                 for fhir_attr in self.feature_attrs + self.label_attrs] for fhir_obj in data]
 
     def predict(self, X):
         return self.clf.predict(X)
