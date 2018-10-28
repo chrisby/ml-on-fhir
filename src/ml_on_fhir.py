@@ -1,5 +1,5 @@
 import sys
-from typing import List, Union
+from typing import List, Union, Callable
 from importlib import import_module
 import logging
 
@@ -91,7 +91,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         preprocessing_module = import_module("preprocessing")
         for fhir_attr in attrs[0] + attrs[1]:
             class_name = self._get_preprocessing_classname(
-                self._fhir_class.__module__, fhir_attr)
+                self._fhir_class.__name__, fhir_attr)
             try:
                 self._transformers[fhir_attr] = getattr(
                     preprocessing_module, class_name)()
@@ -147,18 +147,18 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
     def score(self, X, y=None):
         return self.clf.score(X, y)
 
-    def _get_preprocessing_classname(self, module_name: str, fhir_attr: str):
+    def _get_preprocessing_classname(self, class_name: str, fhir_attr: str):
         """
         Generates a string for the import of respective preprocessing class
 
         Args:
-            module_name (str):	The module name of respective fhir_class (e.g. fhir_objects.Patient)
+            class_name (str):	The class name of respective fhir_class (e.g. Patient)
             fhir_attr (str): 	The fhir attribute for which we want to import the preprocessing class (e.g. age)
 
         Returns:
             str: Respective class name 
         """
-        return ''.join([module_name.split('.')[1].capitalize(), fhir_attr.capitalize(), "Processor"])
+        return ''.join([class_name.capitalize(), fhir_attr.capitalize(), "Processor"])
 
     def _get_data_matrix(self, data: List[Union[Patient]]):
         """
