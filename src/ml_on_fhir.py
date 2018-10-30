@@ -9,6 +9,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import column_or_1d
+from sklearn.utils.multiclass import type_of_target
+import sklearn.metrics as m
 
 
 class MLOnFHIR(BaseEstimator, ClassifierMixin):
@@ -134,6 +136,10 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         X = complete_data_matrix[:, :len(self.feature_attrs)]
         y = complete_data_matrix[:, len(self.feature_attrs):]
 
+        # Check y suitability for classification
+        if type_of_target(y) in ["continous", "continuous-multioutput", "unknown"]:
+            logging.warning("The target label is not suitable for classification (type: {})".format(type_of_target(y)))
+
         logging.info("Started training of clf")
         self.clf = sklearn_clf
         self.clf.fit(X, column_or_1d(y))
@@ -144,8 +150,81 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         return self.clf.predict(X)
 
-    def score(self, X, y=None):
+    def score(self, X, y):
         return self.clf.score(X, y)
+
+    def evaluate(self, X, y, print_report=False):
+        """
+        Depending on the classification task, evaluate the predictor and 
+        store its performance.
+
+        Different use-cases:
+        * Binary: after checking class imbalance on the target values, 
+          computes the accuracy, precision, recall, AUROC, AUPRC, balanced 
+          accuracy, F1-score, confusion matrix (tp, fp, fn, tn)
+
+        * Multiclass: computes the accuracy, F1-score, confusion matrix and 
+          precision/recall information for each class
+
+        * Multilabel: computes the accuracy, AUROC, F1-score, average precision
+          score, precision/recall information for each class
+
+        All cases can print the classification report if print_report is 
+        set to true
+
+        Args:
+            X (array-like):     Test samples
+            y (array-like):     True label of the test samples
+
+        Returns:
+            None
+        """
+        # Start by predicting values
+        y_pred = self.predict(X)
+        y_type = self._get_classification_type(y, y_pred)
+
+        # No metrics support multiclass-multioutput:
+        if y_type == "multiclass-multioutput":
+            logging.warning("No metrics support multiclass-multioutput target")
+            return
+
+        # Result dict
+        eval_dict = dict()
+        # Start by shared evaluations: accuracy, F1-score
+        eval_dict["accuracy"] = m.accuracy_score(y, y_pred)
+        eval_dict["f1_score"] = m.f1_score(y, y_pred, average="micro")
+        # values for each class
+        eval_dict["precision"], eval_dict["recall"], eval_dict["f1_score_class"], \
+            eval_dict["support"]= m.precision_recall_fscore_support(y, y_pred, average=None)
+
+        # Binary case
+        if y_type == "binary":
+            # Check class imbalance, custom def: 20%
+            support = eval_dict["support"]
+            if 4*support[0] <= support[1] or support[0] >= 4*support[1]:
+                logging.warning("Classes are imbalanced, some evaluation metrics have to be considered carefully.")
+                eval_dict["balanced_accuracy"] = m.balanced_accuracy_score(y_true, y_pred)
+            # TODO Check if y_pred scores are probabilistic
+            eval_dict["AUROC"] = m.roc_auc_score(y, y_pred)
+            precision, recall, _ = m.precision_recall_curve(y, y_pred)
+            eval_dict["AUPRC"] = m.auc(recall, precision)
+            # Confusion matrix
+            eval_dict["tn"], eval_dict["fp"], eval_dict["fn"], \
+                eval_dict["tp"] = m.confusion_matrix(y, y_pred).ravel()
+
+        elif y_type == "multiclass":
+            # Confusion matrix
+            eval_dict["confusion_matrix"] = m.confusion_matrix(y, y_pred)
+
+        elif y_type == "multilabel-indicator":
+            # AUROC
+            eval_dict["AUROC"] = m.roc_auc_score(y, y_pred, average="micro")
+            eval_dict["average_precision"] = m.average_precision_score(y, y_pred, average="micro")
+
+        if print_report:
+            print(m.classification_report(y, y_pred))
+
+        return eval_dict
 
     def _get_preprocessing_classname(self, class_name: str, fhir_attr: str):
         """
@@ -186,4 +265,19 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
             step_class = self.transformers[fhir_attr]
             pipeline.append((step_name, step_class, [idx]))
         return pipeline
+
+    def _get_classification_type(self, y, y_pred):
+        # Get predicted types (see sklearn.utils.type_of_target)
+        type_pred = type_of_target(y_pred)
+        type_true = type_of_target(y)
+        y_type = set([type_true, type_pred])
+
+        if y_type == set(["binary", "multiclass"]):
+            y_type = set(["multiclass"])
+
+        if len(y_type) > 1:
+            logging.info("Classification can't handle a mix of {} and {} targets."
+                .format(y_type[0], y_type[1]))
+        # Take first value of set
+        return y_type.pop()
 
