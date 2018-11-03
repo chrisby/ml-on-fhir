@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo Importing Practitioner Information
 curl http://localhost:8080/baseR --data-binary "@data/synthea/fhir_r4/practitionerInformation*.json" -H "Content-Type: application/fhir+json" 
 
