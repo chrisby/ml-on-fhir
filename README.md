@@ -10,3 +10,9 @@ After installation try
 $ hapi-fhir-cli
 ```
 to see if the command line tool was properly installed. 
+
+## Start the server
+The patients we will later generate will be compatible with `FHIR R4`. To start the FHIR server on port 8080 run:
+```
+$ hapi-fhir-cli run-server -p 8080 -v r4
+```
