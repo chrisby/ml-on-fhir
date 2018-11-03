@@ -1,4 +1,4 @@
-from fhir_resources import patient_resources, date_format
+from .fhir_resources import patient_resources, date_format
 from .fhir_base_object import FHIRBaseObject
 
 import datetime as dt

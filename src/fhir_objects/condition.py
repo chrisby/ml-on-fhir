@@ -1,4 +1,4 @@
-from fhir_resources import condition_resources
+from .fhir_resources import condition_resources
 from .fhir_base_object import FHIRBaseObject
 
 import datetime as dt
