@@ -18,12 +18,17 @@ $ hapi-fhir-cli run-server -p 8080 -v r4
 ```
 ## Generate Patients
 This repository makes use of the [Synthea<sup>TM</sup> Patient Generator](https://github.com/synthetichealth/synthea).
-Check if the tests run (Java 1.8 or above is required):
+To check if the tests run (Java 1.8 or above is required) do the following (in a new terminal):
 ```
 $ cd synthea
 $ ./gradlew build check test
 ```
-To generate `100` patients you simply need to run the following command. The patients will then be created in `../data/synthea/fhir_r4`.
+To generate `100` patients you simply need to run the following command. The patients will then be created in `data/synthea/fhir_r4` of the root directory.
 ```
 $ ./run_synthea -s 42 -p 100
+```
+## Import Patients into database
+Once all patients are generated, the last step is to import them into our database. Simply run the following command in the root directory.
+```
+$ ./import_data.sh
 ```
