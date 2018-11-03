@@ -1,13 +1,12 @@
 # ml-on-fhir
 
-## Setup the demo database
-To launch the demo on hapi, make sure to initialize the submodule by either cloning the repo with recursive:
-```console
-git clone --recursive <ml-on-fhir.git>
+## Install the hapi fhir command line interface
+Use the `hapi-fhir-cli` to deploy an empty FHIR server locally. Install the command line tool via the instructions on the [project page](http://hapifhir.io/doc_cli.html) or for Mac users:
 ```
-Or by using the git submodule command:
-```console
-git submodule init
-git submodule update
+$ brew install hapi-fhir-cli
 ```
-Then move into the hapi folder to execute the `build_server.sh` script.
+After installation try
+```
+$ hapi-fhir-cli
+```
+to see if the command line tool was properly installed. 
