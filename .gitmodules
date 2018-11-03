@@ -1,3 +1,0 @@
-[submodule "synthea"]
-	path = synthea
-	url = https://github.com/synthetichealth/synthea.git
