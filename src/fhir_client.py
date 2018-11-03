@@ -1,5 +1,6 @@
 import requests
-from fhir_objects.Patient import Patient
+from fhir_objects.patient import Patient
+from fhir_objects.condition import Condition
 from os.path import join
 
 
@@ -33,5 +34,13 @@ class FHIRClient():
 
         if self._check_status(r.status_code):
             return [Patient(d['resource']) for d in r.json()['entry']]
+        else:
+            r.raise_for_status()
+
+    def get_all_conditions(self, max_count=100):
+        r = requests.get(self._build_url('Condition', _count=max_count, _include='Condition:subject'))
+
+        if self._check_status(r.status_code):
+            return [Condition(d['resource']) for d in r.json()['entry']]
         else:
             r.raise_for_status()
