@@ -7,6 +7,10 @@ import datetime as dt
 class Patient(FHIRBaseObject):
 
     def __init__(self, resource_dict: dict):
+        if resource_dict['resourceType'] != 'Patient':
+            raise ValueError("Can not generate a Patient from {}".format(
+                resource_dict['resourceType']))
+
         super().__init__(resource_dict, patient_resources)
 
     def __str__(self):

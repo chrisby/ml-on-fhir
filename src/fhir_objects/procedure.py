@@ -7,8 +7,9 @@ import datetime as dt
 class Procedure(FHIRBaseObject):
 
     def __init__(self, resource_dict: dict):
-        if resource_dict['resourceType'] != 'Patient':
-            raise ValueError("Can not generate a Procedure from {}".format(resource_dict['resourceType']))
+        if resource_dict['resourceType'] != 'Procedure':
+            raise ValueError("Can not generate a Procedure from {}".format(
+                resource_dict['resourceType']))
 
         super().__init__(resource_dict, procedure_resources)
 

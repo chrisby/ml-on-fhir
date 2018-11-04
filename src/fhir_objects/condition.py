@@ -8,7 +8,8 @@ class Condition(FHIRBaseObject):
 
     def __init__(self, resource_dict: dict):
         if resource_dict['resourceType'] != 'Condition':
-            raise ValueError("Can not generate a Condition from {}".format(resource_dict['resourceType']))
+            raise ValueError("Can not generate a Condition from {}".format(
+                resource_dict['resourceType']))
 
         super().__init__(resource_dict, condition_resources)
 

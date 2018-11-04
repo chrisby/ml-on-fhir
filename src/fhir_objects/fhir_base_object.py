@@ -5,4 +5,4 @@ class FHIRBaseObject():
 
         for resource in fhir_resources:
             if resource in resource_dict.keys():
-               setattr(self, resource, resource_dict[resource])
+                setattr(self, resource, resource_dict[resource])
