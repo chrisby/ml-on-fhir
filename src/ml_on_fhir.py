@@ -138,7 +138,8 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
         # Check y suitability for classification
         if type_of_target(y) in ["continous", "continuous-multioutput", "unknown"]:
-            logging.warning("The target label is not suitable for classification (type: {})".format(type_of_target(y)))
+            logging.warning("The target label is not suitable for classification (type: {})".format(
+                type_of_target(y)))
 
         logging.info("Started training of clf")
         self.clf = sklearn_clf
@@ -195,15 +196,18 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         eval_dict["f1_score"] = m.f1_score(y, y_pred, average="micro")
         # values for each class
         eval_dict["precision"], eval_dict["recall"], eval_dict["f1_score_class"], \
-            eval_dict["support"]= m.precision_recall_fscore_support(y, y_pred, average=None)
+            eval_dict["support"] = m.precision_recall_fscore_support(
+                y, y_pred, average=None)
 
         # Binary case
         if y_type == "binary":
             # Check class imbalance, custom def: 20%
             support = eval_dict["support"]
-            if 4*support[0] <= support[1] or support[0] >= 4*support[1]:
-                logging.warning("Classes are imbalanced, some evaluation metrics have to be considered carefully.")
-                eval_dict["balanced_accuracy"] = m.balanced_accuracy_score(y_true, y_pred)
+            if 4 * support[0] <= support[1] or support[0] >= 4 * support[1]:
+                logging.warning(
+                    "Classes are imbalanced, some evaluation metrics have to be considered carefully.")
+                eval_dict["balanced_accuracy"] = m.balanced_accuracy_score(
+                    y_true, y_pred)
             # TODO Check if y_pred scores are probabilistic
             eval_dict["AUROC"] = m.roc_auc_score(y, y_pred)
             precision, recall, _ = m.precision_recall_curve(y, y_pred)
@@ -219,7 +223,8 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         elif y_type == "multilabel-indicator":
             # AUROC
             eval_dict["AUROC"] = m.roc_auc_score(y, y_pred, average="micro")
-            eval_dict["average_precision"] = m.average_precision_score(y, y_pred, average="micro")
+            eval_dict["average_precision"] = m.average_precision_score(
+                y, y_pred, average="micro")
 
         if print_report:
             print(m.classification_report(y, y_pred))
@@ -277,7 +282,6 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
         if len(y_type) > 1:
             logging.info("Classification can't handle a mix of {} and {} targets."
-                .format(y_type[0], y_type[1]))
+                         .format(y_type[0], y_type[1]))
         # Take first value of set
         return y_type.pop()
-

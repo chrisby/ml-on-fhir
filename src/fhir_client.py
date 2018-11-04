@@ -88,7 +88,8 @@ class FHIRClient():
             else:
                 continue
         if 'entry' in result_json.keys():
-            result += [constructor(d['resource']) for d in result_json['entry'] if d['resource']['resourceType'] == constructor.__name__]
+            result += [constructor(d['resource']) for d in result_json['entry'] if d[
+                'resource']['resourceType'] == constructor.__name__]
         return result
 
     def get_capability_statement(self):
@@ -175,7 +176,8 @@ class FHIRClient():
             List of fhir_objects.Patient.patient
         """
         with requests.Session() as s:
-            r = self._get('Patient', session=s, **{'_has:Procedure:patient:code': '{}|{}'.format(system, code)})
+            r = self._get('Patient', session=s, **
+                          {'_has:Procedure:patient:code': '{}|{}'.format(system, code)})
 
             if self._check_status(r.status_code):
                 return self._collect(r.json(), s, Patient)
@@ -193,7 +195,8 @@ class FHIRClient():
             List of fhir_objects.Patient.patient
         """
         with requests.Session() as s:
-            r = self._get('Procedure', session=s, **{'code:text': text, '_include': 'Procedure:subject'})
+            r = self._get('Procedure', session=s, **
+                          {'code:text': text, '_include': 'Procedure:subject'})
 
             if self._check_status(r.status_code):
                 return self._collect(r.json(), s, Patient)
@@ -212,7 +215,8 @@ class FHIRClient():
             List of fhir_objects.Patient.patient
         """
         with requests.Session() as s:
-            r = self._get('Condition', **{'_has:Condition:patient:code': '{}|{}'.format(system, code)})
+            r = self._get(
+                'Condition', **{'_has:Condition:patient:code': '{}|{}'.format(system, code)})
 
             if self._check_status(r.status_code):
                 return self._collect(r.json(), s, Patient)
@@ -230,7 +234,8 @@ class FHIRClient():
             List of fhir_objects.Patient.patient
         """
         with requests.Session() as s:
-            r = self._get('Condition', session=s, **{'code:text': text, '_include': 'Condition:subject'})
+            r = self._get('Condition', session=s, **
+                          {'code:text': text, '_include': 'Condition:subject'})
 
             if self._check_status(r.status_code):
                 return self._collect(r.json(), s, Patient)
