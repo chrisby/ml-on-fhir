@@ -1,6 +1,9 @@
 import requests
 from fhir_objects.patient import Patient
 from fhir_objects.condition import Condition
+from fhir_objects.observation import Observation
+from fhir_objects.procedure import Procedure
+
 from os.path import join
 import logging
 from typing import Callable
@@ -68,6 +71,7 @@ class FHIRClient():
 
         Args:
             result_json (dict): The json result from the initial query
+            session (requests.Session): Session to be used for all requests
             constructor (Callable): The constructor with which to construct the result list
 
         Returns:
@@ -83,8 +87,8 @@ class FHIRClient():
                     r.raise_for_status()
             else:
                 continue
-
-        result += [constructor(d['resource']) for d in result_json['entry']]
+        if 'entry' in result_json.keys():
+            result += [constructor(d['resource']) for d in result_json['entry'] if d['resource']['resourceType'] == constructor.__name__]
         return result
 
     def get_capability_statement(self):
@@ -126,5 +130,109 @@ class FHIRClient():
 
             if self._check_status(r.status_code):
                 return self._collect(r.json(), s, Condition)
+            else:
+                r.raise_for_status()
+
+    def get_all_observations(self):
+        """
+        Gets all conditions
+
+        Returns:
+            List of fhir_objects.Condition.condition
+        """
+        with requests.Session() as s:
+            r = self._get('Observation', session=s)
+
+            if self._check_status(r.status_code):
+                return self._collect(r.json(), s, Observation)
+            else:
+                r.raise_for_status()
+
+    def get_all_procedures(self):
+        """
+        Gets all conditions
+
+        Returns:
+            List of fhir_objects.Condition.condition
+        """
+        with requests.Session() as s:
+            r = self._get('Procedure', session=s)
+
+            if self._check_status(r.status_code):
+                return self._collect(r.json(), s, Procedure)
+            else:
+                r.raise_for_status()
+
+    def get_patients_by_procedure_code(self, system: str, code: str):
+        """
+        Gets all patients with procedure of a certain system code
+
+        Args: 
+            system (str): System from which the code originates (e.g. 'http://snomed.info/sct')
+            code (str): Code (e.g. 73761001)
+
+        Returns:
+            List of fhir_objects.Patient.patient
+        """
+        with requests.Session() as s:
+            r = self._get('Patient', session=s, **{'_has:Procedure:patient:code': '{}|{}'.format(system, code)})
+
+            if self._check_status(r.status_code):
+                return self._collect(r.json(), s, Patient)
+            else:
+                r.raise_for_status()
+
+    def get_patients_by_procedure_text(self, text: str):
+        """
+        Gets all patients with procedure of a certain text (e.g. Colonoscopy)
+
+        Args: 
+            text (str): Text of CodeableConcept.text, Coding.display, or Identifier.type.text.
+
+        Returns:
+            List of fhir_objects.Patient.patient
+        """
+        with requests.Session() as s:
+            r = self._get('Procedure', session=s, **{'code:text': text, '_include': 'Procedure:subject'})
+
+            if self._check_status(r.status_code):
+                return self._collect(r.json(), s, Patient)
+            else:
+                r.raise_for_status()
+
+    def get_patients_by_condition_code(self, system: str, code: str):
+        """
+        Gets all patients with condition of a certain system code
+
+        Args: 
+            system (str): System from which the code originates (e.g. 'http://snomed.info/sct')
+            code (str): Code (e.g. 195662009)
+
+        Returns:
+            List of fhir_objects.Patient.patient
+        """
+        with requests.Session() as s:
+            r = self._get('Condition', **{'_has:Condition:patient:code': '{}|{}'.format(system, code)})
+
+            if self._check_status(r.status_code):
+                return self._collect(r.json(), s, Patient)
+            else:
+                r.raise_for_status()
+
+    def get_patients_by_condition_text(self, text: str):
+        """
+        Gets all patients with condition of a certain text (e.g 'Acute viral pharyngitis')
+
+        Args: 
+            text (str): Text of CodeableConcept.text, Coding.display, or Identifier.type.text.
+
+        Returns:
+            List of fhir_objects.Patient.patient
+        """
+        with requests.Session() as s:
+            r = self._get('Condition', session=s, **{'code:text': text, '_include': 'Condition:subject'})
+
+            if self._check_status(r.status_code):
+                return self._collect(r.json(), s, Patient)
             else:
                 r.raise_for_status()
