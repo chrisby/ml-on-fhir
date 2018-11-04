@@ -3,7 +3,7 @@ from typing import List, Union, Callable
 from importlib import import_module
 import logging
 
-from fhir_objects.Patient import Patient
+from fhir_objects.patient import Patient
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.neighbors import KNeighborsClassifier

@@ -4,8 +4,8 @@ from typing import Union, List
 import logging
 import numpy as np
 
-from fhir_objects.Patient import Patient
-from fhir_resources import date_format
+from fhir_objects.patient import Patient
+from fhir_objects.fhir_resources import date_format
 
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import LabelEncoder
