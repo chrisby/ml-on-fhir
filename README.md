@@ -10,4 +10,4 @@ Or by using the git submodule command:
 git submodule init
 git submodule update
 ```
-Then move into the hapi folder to execute the `build_server.sh` script.
+Then move into the hapi folder to execute the `build_server.sh` and then `run_server.sh`script.
