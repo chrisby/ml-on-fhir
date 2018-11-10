@@ -121,7 +121,7 @@ class FHIRClient():
 
         if self._check_status(r.status_code):
             result = r.json()
-            results = self._collect(results, self.session, Patient)
+            results = self._collect(result, self.session, Patient)
 
             if self.logger and self.logger.isEnabledFor(logging.INFO):
                 end = time.time()
