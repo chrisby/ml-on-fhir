@@ -11,7 +11,8 @@ class Observation(FHIRBaseObject):
             raise ValueError("Can not generate an Observation from {}".format(
                 resource_dict['resourceType']))
 
-        super().__init__(resource_dict, observation_resources)
+        kwargs['fhir_resources'] = observation_resources
+        super().__init__(**kwargs)
 
     def __str__(self):
         if self.name:

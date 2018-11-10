@@ -6,12 +6,14 @@ import datetime as dt
 
 class Procedure(FHIRBaseObject):
 
-    def __init__(self, resource_dict: dict):
+    def __init__(self, **kwargs):
+        resource_dict = kwargs['resource_dict']
         if resource_dict['resourceType'] != 'Procedure':
             raise ValueError("Can not generate a Procedure from {}".format(
                 resource_dict['resourceType']))
 
-        super().__init__(resource_dict, procedure_resources)
+        kwargs['fhir_resources'] = procedure_resources
+        super().__init__(**kwargs)
 
     def __str__(self):
         if self.name:

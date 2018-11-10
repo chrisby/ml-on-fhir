@@ -1,4 +1,4 @@
-patient_resources = ['identifier', 'resourceType', 'active', 'gender', 'name',
+patient_resources = ['identifier', 'resourceType', 'id', 'active', 'gender', 'name',
                      'birthDate', 'deceased', 'deceased', 'maritalStatus']
 
 condition_resources = ['identifier', 'resourceType', 'clinicalStatus', 'verificationStatus', 'category',

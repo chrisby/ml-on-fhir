@@ -6,12 +6,14 @@ import datetime as dt
 
 class Condition(FHIRBaseObject):
 
-    def __init__(self, resource_dict: dict):
+    def __init__(self, **kwargs):
+        resource_dict = kwargs['resource_dict']
         if resource_dict['resourceType'] != 'Condition':
             raise ValueError("Can not generate a Condition from {}".format(
                 resource_dict['resourceType']))
 
-        super().__init__(resource_dict, condition_resources)
+        kwargs['fhir_resources'] = condition_resources
+        super().__init__(**kwargs)
 
     def __str__(self):
         if self.name:
