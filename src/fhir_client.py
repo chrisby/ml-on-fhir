@@ -3,6 +3,7 @@ from fhir_objects.patient import Patient
 from fhir_objects.condition import Condition
 from fhir_objects.observation import Observation
 from fhir_objects.procedure import Procedure
+import time
 
 from os.path import join
 import logging
@@ -11,7 +12,7 @@ from typing import Callable
 
 class FHIRClient():
 
-    def __init__(self, service_base_url: str):
+    def __init__(self, service_base_url: str, logger: logging.Logger=None):
         """
         Helper class to perform requests to a FHIR server.
 
@@ -20,6 +21,7 @@ class FHIRClient():
         """
         self.server_url = service_base_url
         self.session = requests.Session()
+        self.logger = logger
 
     def _check_status(self, status_code: int):
         """
@@ -68,7 +70,7 @@ class FHIRClient():
     def _collect(self, result_json: dict, session: requests.Session, constructor: Callable):
         """
         A server might return a pageinated result due to its settings.
-        This method collects all results recursively. 
+        This method collects all results recursively.
 
         Args:
             result_json (dict): The json result from the initial query
@@ -96,9 +98,9 @@ class FHIRClient():
     def get_capability_statement(self):
         """
         Returns:
-            The capability statement of the FHIR server. 
+            The capability statement of the FHIR server.
         """
-        r = self._get('metadata')
+        r = self._get('metadata', session=self.session)
 
         if self._check_status(r.status_code):
             return r.json()
@@ -112,10 +114,21 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Patient.patient
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Patient', session=self.session)
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Patient)
+            result = r.json()
+            results = self._collect(results, self.session, Patient)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} patients in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -126,10 +139,21 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Condition.condition
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Condition', session=self.session)
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Condition)
+            result = r.json()
+            results = self._collect(result, self.session, Condition)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} conditions in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -140,10 +164,21 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Condition.condition
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Observation', session=self.session)
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Observation)
+            result = r.json()
+            results = self._collect(result, self.session, Observation)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} observations in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -154,10 +189,21 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Condition.condition
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Procedure', session=self.session)
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Procedure)
+            result = r.json()
+            results = self._collect(r.json(), self.session, Procedure)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} procedures in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -165,18 +211,29 @@ class FHIRClient():
         """
         Gets all patients with procedure of a certain system code
 
-        Args: 
+        Args:
             system (str): System from which the code originates (e.g. 'http://snomed.info/sct')
             code (str): Code (e.g. 73761001)
 
         Returns:
             List of fhir_objects.Patient.patient
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Patient', session=self.session, **
                       {'_has:Procedure:patient:code': '{}|{}'.format(system, code)})
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Patient)
+            result = r.json()
+            results = self._collect(result, self.session, Patient)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} patients in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -184,17 +241,28 @@ class FHIRClient():
         """
         Gets all patients with procedure of a certain text (e.g. Colonoscopy)
 
-        Args: 
+        Args:
             text (str): Text of CodeableConcept.text, Coding.display, or Identifier.type.text.
 
         Returns:
             List of fhir_objects.Patient.patient
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Procedure', session=self.session, **
                       {'code:text': text, '_include': 'Procedure:patient'})
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Patient)
+            result = r.json()
+            results = self._collect(result, self.session, Patient)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} patients in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -202,18 +270,29 @@ class FHIRClient():
         """
         Gets all patients with condition of a certain system code
 
-        Args: 
+        Args:
             system (str): System from which the code originates (e.g. 'http://snomed.info/sct')
             code (str): Code (e.g. 195662009)
 
         Returns:
             List of fhir_objects.Patient.patient
         """
-        r = self._get(
-            'Condition', **{'_has:Condition:patient:code': '{}|{}'.format(system, code)})
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
+        r = self._get('Condition', session=self.session, **
+                      {'_has:Condition:patient:code': '{}|{}'.format(system, code)})
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Patient)
+            result = r.json()
+            results = self._collect(result, self.session, Patient)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} patients in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -221,17 +300,28 @@ class FHIRClient():
         """
         Gets all patients with condition of a certain text (e.g 'Acute viral pharyngitis')
 
-        Args: 
+        Args:
             text (str): Text of CodeableConcept.text, Coding.display, or Identifier.type.text.
 
         Returns:
             List of fhir_objects.Patient.patient
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Condition', session=self.session, **
                       {'code:text': text, '_include': 'Condition:patient'})
 
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Patient)
+            result = r.json()
+            results = self._collect(result, self.session, Patient)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} patients in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
             r.raise_for_status()
 
@@ -242,8 +332,19 @@ class FHIRClient():
         Args:
             patient_id (str): The patient resource identifier
         """
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            start = time.time()
+
         r = self._get('Observation', session=self.session, patient=patient_id)
         if self._check_status(r.status_code):
-            return self._collect(r.json(), self.session, Observation)
+            result = r.json()
+            results = self._collect(result, self.session, Observation)
+
+            if self.logger and self.logger.isEnabledFor(logging.INFO):
+                end = time.time()
+                logging.info("Received {} observations in {:.2f} seconds.".format(
+                    len(results), end - start))
+
+            return results
         else:
-        	r.raise_for_status()
+            r.raise_for_status()
