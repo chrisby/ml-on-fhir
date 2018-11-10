@@ -19,6 +19,7 @@ class FHIRClient():
             server_url (str): Base url to be used for all requests (e.g. http://localhost:8080/baseR4)
         """
         self.server_url = service_base_url
+        self.session = requests.Session()
 
     def _check_status(self, status_code: int):
         """
@@ -88,7 +89,7 @@ class FHIRClient():
             else:
                 continue
         if 'entry' in result_json.keys():
-            result += [constructor(d['resource']) for d in result_json['entry'] if d[
+            result += [constructor(resource_dict=d['resource'], fhir_client=self) for d in result_json['entry'] if d[
                 'resource']['resourceType'] == constructor.__name__]
         return result
 
@@ -111,13 +112,12 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Patient.patient
         """
-        with requests.Session() as s:
-            r = self._get('Patient', session=s)
+        r = self._get('Patient', session=self.session)
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Patient)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Patient)
+        else:
+            r.raise_for_status()
 
     def get_all_conditions(self):
         """
@@ -126,13 +126,12 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Condition.condition
         """
-        with requests.Session() as s:
-            r = self._get('Condition', session=s)
+        r = self._get('Condition', session=self.session)
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Condition)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Condition)
+        else:
+            r.raise_for_status()
 
     def get_all_observations(self):
         """
@@ -141,13 +140,12 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Condition.condition
         """
-        with requests.Session() as s:
-            r = self._get('Observation', session=s)
+        r = self._get('Observation', session=self.session)
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Observation)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Observation)
+        else:
+            r.raise_for_status()
 
     def get_all_procedures(self):
         """
@@ -156,13 +154,12 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Condition.condition
         """
-        with requests.Session() as s:
-            r = self._get('Procedure', session=s)
+        r = self._get('Procedure', session=self.session)
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Procedure)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Procedure)
+        else:
+            r.raise_for_status()
 
     def get_patients_by_procedure_code(self, system: str, code: str):
         """
@@ -175,14 +172,13 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Patient.patient
         """
-        with requests.Session() as s:
-            r = self._get('Patient', session=s, **
-                          {'_has:Procedure:patient:code': '{}|{}'.format(system, code)})
+        r = self._get('Patient', session=self.session, **
+                      {'_has:Procedure:patient:code': '{}|{}'.format(system, code)})
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Patient)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Patient)
+        else:
+            r.raise_for_status()
 
     def get_patients_by_procedure_text(self, text: str):
         """
@@ -194,14 +190,13 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Patient.patient
         """
-        with requests.Session() as s:
-            r = self._get('Procedure', session=s, **
-                          {'code:text': text, '_include': 'Procedure:subject'})
+        r = self._get('Procedure', session=self.session, **
+                      {'code:text': text, '_include': 'Procedure:patient'})
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Patient)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Patient)
+        else:
+            r.raise_for_status()
 
     def get_patients_by_condition_code(self, system: str, code: str):
         """
@@ -214,14 +209,13 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Patient.patient
         """
-        with requests.Session() as s:
-            r = self._get(
-                'Condition', **{'_has:Condition:patient:code': '{}|{}'.format(system, code)})
+        r = self._get(
+            'Condition', **{'_has:Condition:patient:code': '{}|{}'.format(system, code)})
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Patient)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Patient)
+        else:
+            r.raise_for_status()
 
     def get_patients_by_condition_text(self, text: str):
         """
@@ -233,11 +227,23 @@ class FHIRClient():
         Returns:
             List of fhir_objects.Patient.patient
         """
-        with requests.Session() as s:
-            r = self._get('Condition', session=s, **
-                          {'code:text': text, '_include': 'Condition:subject'})
+        r = self._get('Condition', session=self.session, **
+                      {'code:text': text, '_include': 'Condition:patient'})
 
-            if self._check_status(r.status_code):
-                return self._collect(r.json(), s, Patient)
-            else:
-                r.raise_for_status()
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Patient)
+        else:
+            r.raise_for_status()
+
+    def get_observation_by_patient(self, patient_id: str):
+        """
+        Gets all observations for a given patient.
+
+        Args:
+            patient_id (str): The patient resource identifier
+        """
+        r = self._get('Observation', session=self.session, patient=patient_id)
+        if self._check_status(r.status_code):
+            return self._collect(r.json(), self.session, Observation)
+        else:
+        	r.raise_for_status()

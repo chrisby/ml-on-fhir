@@ -6,7 +6,8 @@ import datetime as dt
 
 class Observation(FHIRBaseObject):
 
-    def __init__(self, resource_dict: dict):
+    def __init__(self, **kwargs):
+        resource_dict = kwargs['resource_dict']
         if resource_dict['resourceType'] != 'Observation':
             raise ValueError("Can not generate an Observation from {}".format(
                 resource_dict['resourceType']))

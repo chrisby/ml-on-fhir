@@ -2,6 +2,7 @@ from .fhir_resources import patient_resources, date_format
 from .fhir_base_object import FHIRBaseObject
 
 import datetime as dt
+import logging
 
 
 class Patient(FHIRBaseObject):
@@ -15,10 +16,8 @@ class Patient(FHIRBaseObject):
         kwargs['fhir_resources'] = patient_resources
         super().__init__(**kwargs)
 
-        print(self.fhir_client)
-
         # Retrieve all Observations for the patient
-        #self.observations = get_observation_by_patient
+        self.observations = self.fhir_client.get_observation_by_patient(self.id)
 
     def __str__(self):
         if self.name:
