@@ -135,15 +135,16 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
         complete_data_matrix = ct.fit_transform(data_matrix)
         X = complete_data_matrix[:, :len(self.feature_attrs)]
         y = complete_data_matrix[:, len(self.feature_attrs):]
+        y = column_or_1d(y)
 
         # Check y suitability for classification
-        if type_of_target(y) in ["continous", "continuous-multioutput", "unknown"]:
+        if type_of_target(y) in ["continuous", "continuous-multioutput", "unknown"]:
             logging.warning("The target label is not suitable for classification (type: {})".format(
                 type_of_target(y)))
 
         logging.info("Started training of clf")
         self.clf = sklearn_clf
-        self.clf.fit(X, column_or_1d(y))
+        self.clf.fit(X, column_or_1d(y).tolist())
         logging.info("Training completed")
 
         return X, y, self.clf
