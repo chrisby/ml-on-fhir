@@ -320,7 +320,7 @@ class FHIRClient():
         if self.logger and self.logger.isEnabledFor(logging.INFO):
             start = time.time()
 
-        r = self._get('Condition', session=self.session, **
+        r = self._get('Patient', session=self.session, **
                       {'_has:Condition:patient:code': '{}|{}'.format(system, code)})
 
         if self._check_status(r.status_code):
