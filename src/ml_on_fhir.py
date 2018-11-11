@@ -144,7 +144,7 @@ class MLOnFHIR(BaseEstimator, ClassifierMixin):
 
         logging.info("Started training of clf")
         self.clf = sklearn_clf
-        self.clf.fit(X, column_or_1d(y).tolist())
+        self.clf.fit(X, column_or_1d(y))
         logging.info("Training completed")
 
         return X, y, self.clf
