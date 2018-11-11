@@ -20,11 +20,12 @@ class Patient(FHIRBaseObject):
         self.observations = self.fhir_client.get_observation_by_patient(
             self.id)
 
-        self._postprocess_observations()
+        self._process_observations()
 
-    def _postprocess_observations(self):
+    def _process_observations(self):
         for preprocessor in self.fhir_client.observation_preprocessors:
-            preprocessor().fit(self.observations).transform(self.observations)
+            attribute, value = preprocessor().fit(self.observations).transform(self.observations)
+            setattr(self, attribute, value)
 
     def __str__(self):
         if hasattr(self, 'name'):

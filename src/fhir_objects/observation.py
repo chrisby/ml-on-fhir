@@ -15,3 +15,12 @@ class Observation(FHIRBaseObject):
         kwargs['fhir_resources'] = observation_resources
         super().__init__(**kwargs)
 
+    def __lt__(self, other):
+        return (self.effectiveDateTime < other.effectiveDateTime)
+
+    def __le__(self,other):
+        return(self.effectiveDateTime <= other.effectiveDateTime)
+
+    def __gt__(self,other):
+        return(self.effectiveDateTime > other.effectiveDateTime)
+

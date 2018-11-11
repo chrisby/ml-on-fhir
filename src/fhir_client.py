@@ -84,8 +84,9 @@ class FHIRClient():
             base_url += '?'
 
         for param in query_params.keys():
-            if query_params[param]:
-                base_url += '{}={}&'.format(param, query_params[param])
+            param_value = query_params[param]
+            if param_value: 
+                base_url += '{}={}&'.format(param, param_value)
         return base_url
 
     def _get(self, path: str, session: requests.Session=None, **query_params):
@@ -366,7 +367,7 @@ class FHIRClient():
 
     def get_observation_by_patient(self, patient_id: str):
         """
-        Gets all observations for a given patient that is of status final.
+        Gets all observations for a given patient that is of status final, unknown, amended, corrected.
 
         Args:
             patient_id (str): The patient resource identifier
@@ -375,7 +376,7 @@ class FHIRClient():
             start = time.time()
 
         r = self._get('Observation', session=self.session,
-                      status='final', patient=patient_id)
+                      status='final,unknown,amended,corrected', patient=patient_id)
         if self._check_status(r.status_code):
             result = r.json()
             results = self._collect(result, self.session, Observation)
