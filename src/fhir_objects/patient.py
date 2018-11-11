@@ -17,10 +17,17 @@ class Patient(FHIRBaseObject):
         super().__init__(**kwargs)
 
         # Retrieve all Observations for the patient
-        self.observations = self.fhir_client.get_observation_by_patient(self.id)
+        self.observations = self.fhir_client.get_observation_by_patient(
+            self.id)
+
+        self._postprocess_observations()
+
+    def _postprocess_observations(self):
+        for preprocessor in self.fhir_client.observation_preprocessors:
+            preprocessor().fit(self.observations).transform(self.observations)
 
     def __str__(self):
-        if self.name:
+        if hasattr(self, 'name'):
             name_list = self._dict['name']
             return str(name_list)
         else:

@@ -6,7 +6,7 @@ condition_resources = ['identifier', 'resourceType', 'id', 'clinicalStatus', 've
 
 observation_resources = ['identifier', 'resourceType', 'id', 'status', 'category', 'code', 'subject', 'context',
                          'issued', 'performer', 'value', 'interpretation', 'comment', 'bodySite',
-                         'method', 'referenceRange', 'component']
+                         'method', 'referenceRange', 'component', 'effectiveDateTime', 'effectivePeriod']
 
 procedure_resources = ['identifier', 'resourceType', 'id', 'subject', 'status', 'notDone', 'notDoneReason', 'category', 'code',
                        'performed', 'reasonCode', 'bodySite', 'outcome', 'report', 'performedPeriod']

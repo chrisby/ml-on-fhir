@@ -14,10 +14,3 @@ class Condition(FHIRBaseObject):
 
         kwargs['fhir_resources'] = condition_resources
         super().__init__(**kwargs)
-
-    def __str__(self):
-        if self.name:
-            name_list = self._dict['name']
-            return str(name_list)
-        else:
-            return "Condition has no name attribute."

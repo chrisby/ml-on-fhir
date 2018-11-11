@@ -4,6 +4,8 @@ from fhir_objects.condition import Condition
 from fhir_objects.observation import Observation
 from fhir_objects.procedure import Procedure
 import time
+import importlib.util
+
 
 from os.path import join
 import logging
@@ -12,16 +14,53 @@ from typing import Callable
 
 class FHIRClient():
 
-    def __init__(self, service_base_url: str, logger: logging.Logger=None):
+    def __init__(self, service_base_url: str, logger: logging.Logger=None, preprocessor=None):
         """
         Helper class to perform requests to a FHIR server.
 
         Attributes:
             server_url (str): Base url to be used for all requests (e.g. http://localhost:8080/baseR4)
+            logger (logging.Logger): Logger to be used
+            preprocessor (module): Preprocessor module to be used
         """
         self.server_url = service_base_url
         self.session = requests.Session()
         self.logger = logger
+        self.preprocessor = preprocessor
+        self.observation_preprocessors = None
+
+    @property
+    def observation_preprocessors(self):
+        """List of observation preprocessors"""
+        return self._observation_preprocessors
+
+    @observation_preprocessors.setter
+    def observation_preprocessors(self, preprocessor=None):
+        self._observation_preprocessors = self._preprocessor.get_observation_preprocessors()
+
+    @observation_preprocessors.deleter
+    def observation_preprocessors(self):
+        del self._observation_preprocessors
+
+    @property
+    def preprocessor(self):
+        """Module to be used for preprocessing"""
+        return self._preprocessor
+
+    @preprocessor.setter
+    def preprocessor(self, preprocessor=None):
+        if not preprocessor:
+            spec = importlib.util.spec_from_file_location(
+                "preprocessing", "./preprocessing.py")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            self._preprocessor = module
+        else:
+            self._preprocessor = preprocessor
+
+    @preprocessor.deleter
+    def preprocessor(self, preprocessor=None):
+        del self._preprocessor
 
     def _check_status(self, status_code: int):
         """
@@ -327,7 +366,7 @@ class FHIRClient():
 
     def get_observation_by_patient(self, patient_id: str):
         """
-        Gets all observations for a given patient.
+        Gets all observations for a given patient that is of status final.
 
         Args:
             patient_id (str): The patient resource identifier
@@ -335,7 +374,8 @@ class FHIRClient():
         if self.logger and self.logger.isEnabledFor(logging.INFO):
             start = time.time()
 
-        r = self._get('Observation', session=self.session, patient=patient_id)
+        r = self._get('Observation', session=self.session,
+                      status='final', patient=patient_id)
         if self._check_status(r.status_code):
             result = r.json()
             results = self._collect(result, self.session, Observation)

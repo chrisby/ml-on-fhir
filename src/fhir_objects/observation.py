@@ -15,9 +15,3 @@ class Observation(FHIRBaseObject):
         kwargs['fhir_resources'] = observation_resources
         super().__init__(**kwargs)
 
-    def __str__(self):
-        if self.name:
-            name_list = self._dict['name']
-            return str(name_list)
-        else:
-            return "Observation has no name attribute."
