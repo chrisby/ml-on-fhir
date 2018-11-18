@@ -123,7 +123,7 @@ class MLOnFHIR(BaseEstimator):
         Returns:
             str: Respective class name 
         """
-        return ''.join([class_name.capitalize(), fhir_attr.capitalize(), "Processor"])
+        return ''.join([class_name.capitalize(), fhir_attr, "Processor"])
 
     def _get_data_matrix(self, data: List[Union[Patient]]):
         """
