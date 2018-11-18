@@ -2,6 +2,7 @@ import sys
 from typing import List, Union, Callable
 from importlib import import_module
 import logging
+import numpy as np
 
 from fhir_objects.patient import Patient
 
@@ -25,17 +26,23 @@ class MLOnFHIR(BaseEstimator):
         fhir_class (Union[Patient]): A class from the fhir_objects module (e.g. Patient)
         feature_attrs (List[str]): A list of fhir attributes from respective fhir_class
         label_attrs (List[str]): A list of (as of now) one fhir attribute from respective fhir_class to be used as label
+        random_state (int): The seed used for random initialization, it can be an int or None, to keep numpy's default
 
     Attributes:
         transformers (dict): Dictionary that maps a fhir attribute to its respective transformer class 
                              (e.g preprocessing.PatientBirthdateProcessor)
     """
 
-    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str] = []):
+    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str] = [], random_state = 42):
         self.fhir_class = fhir_class
         self.label_attrs = label_attrs
         self.feature_attrs = feature_attrs
         self.transformers = (feature_attrs, label_attrs)
+        self.random_state = random_state
+        # The easiest way to initiate sklearn random state globally is to set the np.random.seed(), although this might not be stable for
+        # multithreading situations (https://stackoverflow.com/questions/31057197/should-i-use-random-seed-or-numpy-random-seed-to-control-random-number-gener)
+        if self.random_state is not None:
+            np.random.seed(self.random_state)
 
     @property
     def feature_attrs(self):
@@ -165,8 +172,8 @@ class MLOnFHIRClassifier(MLOnFHIR, ClassifierMixin):
         transformers (dict): Dictionary that maps a fhir attribute to its respective transformer class 
                              (e.g preprocessing.PatientBirthdateProcessor)
     """
-    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]):
-        super(MLOnFHIRClassifier, self).__init__(fhir_class, feature_attrs, label_attrs)
+    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str], random_state: int = 42):
+        super(MLOnFHIRClassifier, self).__init__(fhir_class, feature_attrs, label_attrs, random_state)
         
     def fit(self, data: List[Union[Patient]], sklearn_clf: ClassifierMixin = RandomForestClassifier(), **fit_params):
         """
@@ -324,8 +331,8 @@ class MLOnFHIRCluster(MLOnFHIR, ClusterMixin):
         transformers (dict): Dictionary that maps a fhir attribute to its respective transformer class 
                              (e.g preprocessing.PatientBirthdateProcessor)
     """
-    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]=[]):
-        super(MLOnFHIRCluster, self).__init__(fhir_class, feature_attrs)
+    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]=[], random_state: int = 42):
+        super(MLOnFHIRCluster, self).__init__(fhir_class, feature_attrs, label_attrs, random_state)
         
     def fit(self, data: List[Union[Patient]], sklearn_cluster: ClusterMixin = KMeans(), **fit_params):
         """
@@ -364,7 +371,7 @@ class MLOnFHIRCluster(MLOnFHIR, ClusterMixin):
         
         # Evaluation
         self.train_eval = self.evaluate(X, y=y)
-        if y:
+        if y is not None:
             logging.info("Adjusted Rand index : {}, mutual information : {}, silhouette score : {}"
                          .format(self.train_eval['rand_index'], self.train_eval['mutual_information'], self.train_eval['silhouette_score']))
         else:
