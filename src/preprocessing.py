@@ -1,10 +1,11 @@
 from inspect import signature
 import datetime as dt
-from typing import Union, List
+from typing import Union, List, Type
 import logging
 import numpy as np
 import re
 from importlib import import_module
+import types
 
 
 from fhir_objects.patient import Patient
@@ -51,6 +52,12 @@ def register_preprocessor(processor_class: BaseEstimator):
 
 
 def get_observation_preprocessors():
+    """
+    Returns a list of registered observation processors.
+
+    Returns:
+        list: List of classes with the r'Observation[\w]+Processor' signature 
+    """
     preprocessing_module = import_module(
         get_observation_preprocessors.__module__)
     preprocessors = []
@@ -78,17 +85,16 @@ class PatientProcessorBaseClass(BaseEstimator):
         return self
 
 
-def PatientProcessorFactory(class_name: str, base_class=PatientProcessorBaseClass):
+def PatientProcessorFactory(class_name: str, base_class: Type[PatientProcessorBaseClass]=PatientProcessorBaseClass):
     """
     Helper class to generate Patient Processor classes with specific names
-    """
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
 
-        base_class.__init__(self)
-    new_class = type(class_name, (base_class,), {"__init__": __init__})
-    return new_class
+    Args:
+        class_name (str): Name of the class to be generated
+        base_class (class object): Base class 
+    """
+    new_cl = types.new_class(class_name, (base_class,))
+    return new_cl
 
 
 class FHIRLabelEncoder(BaseEstimator):
