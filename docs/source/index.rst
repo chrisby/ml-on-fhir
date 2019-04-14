@@ -8,10 +8,10 @@ Installation
 TODO
 
 Getting Started
----------------
+^^^^^^^^^^^^^^^
 
 Connecting to a FHIR Server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 To connect to a FHIR server, create a ``FHIRClient`` object and provide its ``BaseURL``:: 
 
     from fhir_client import FHIRClient
