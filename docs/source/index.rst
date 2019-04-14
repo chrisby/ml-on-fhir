@@ -28,8 +28,7 @@ Before querying patients that belong to a specific cohort, we can get an overvie
    procedures = client.get_all_procedures()
    pd.DataFrame([prod.code['coding'][0] for prod in procedures]).drop_duplicates().sort_values(by=['display']).head()
 
-This might take a while but will give you an overview of available procedures. E.g.:
-
+This might take a while but will give you an overview of available procedures. E.g.
 
 =====  ========  =======  =========
 ID     code      display  system
