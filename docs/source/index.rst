@@ -3,6 +3,9 @@ Welcome to ML on FHIR's documentation!
 .. highlight:: python
    :linenothreshold: 1
 
+.. toctree::
+   :maxdepth: 2
+   
 Installation
 ^^^^^^^^^^^^
 TODO
@@ -39,6 +42,3 @@ ID     code      display  system
 6217	305433001	Admission to trauma surgery department	http://snomed.info/sct
 13687	35637008	Alcohol rehabilitation	http://snomed.info/sct
 =====  =======  =======  ==========
-
-.. toctree::
-   :maxdepth: 2
