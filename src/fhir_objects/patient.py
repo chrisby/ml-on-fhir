@@ -6,6 +6,12 @@ import logging
 
 
 class Patient(FHIRBaseObject):
+    """
+    Class that implements FHIR's patient resource.
+
+    Attributes:
+         All FHIR attributes specified in patient_resources 
+    """
 
     def __init__(self, **kwargs):
         resource_dict = kwargs['resource_dict']
@@ -16,15 +22,19 @@ class Patient(FHIRBaseObject):
         kwargs['fhir_resources'] = patient_resources
         super().__init__(**kwargs)
 
-        # Retrieve all Observations for the patient
+        # Retrieve all observations for the patient
         self.observations = self.fhir_client.get_observation_by_patient(
             self.id)
 
         self._process_observations()
 
     def _process_observations(self):
+        """
+        Sets observations as patient attributes
+        """
         for preprocessor in self.fhir_client.observation_preprocessors:
-            attribute, value = preprocessor().fit(self.observations).transform(self.observations)
+            attribute, value = preprocessor().fit(
+                self.observations).transform(self.observations)
             setattr(self, attribute, value)
 
     def __str__(self):

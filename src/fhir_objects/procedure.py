@@ -5,6 +5,12 @@ import datetime as dt
 
 
 class Procedure(FHIRBaseObject):
+    """
+    Class that implements FHIR's procedure resource.
+
+    Attributes:
+         All FHIR attributes specified in patient_resources 
+    """
 
     def __init__(self, **kwargs):
         resource_dict = kwargs['resource_dict']

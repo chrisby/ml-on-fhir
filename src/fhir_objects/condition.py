@@ -5,7 +5,12 @@ import datetime as dt
 
 
 class Condition(FHIRBaseObject):
+    """
+    Class that implements FHIR's condition resource.
 
+    Attributes:
+         All FHIR attributes specified in condition_resources 
+    """
     def __init__(self, **kwargs):
         resource_dict = kwargs['resource_dict']
         if resource_dict['resourceType'] != 'Condition':

@@ -73,6 +73,24 @@ def get_observation_preprocessors():
     return preprocessors
 
 
+def get_coding_condition(code_dict_list: list):
+    """
+    Defines a function that returns true if the coding of a given observation 
+    fits one of the dicts in code_dict_list
+
+    Args:
+        code_dict_list (list): A list of dicts that define the code we are looking for
+
+    Returns:
+        func: A function that can be used in a filter expression of a list 
+    """
+    def conditions(observation):
+        for code in observation.code['coding']:
+            for code_dict in code_dict_list:
+                if all (k in code.keys() for k in code_dict):
+                    return all (code[k] == code_dict[k] for k in code_dict)
+    return conditions
+
 class PatientProcessorBaseClass(BaseEstimator):
     """
     Base class that is used for the generation of Patient Processors 
@@ -136,6 +154,66 @@ class PatientbirthDateProcessor(BaseEstimator):
             ages.append([int(
                             (dt.datetime.now().date() - b_date.date()).days / 365)])
         return np.array(ages)
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+class ObservationLatestBmiProcessor(BaseEstimator):
+    """
+    Class to transform the FHIR observation resource with loinc code 39156-5 (BMI)
+    to be usable as patient feature.
+    """
+    def __init__(self):
+        self.patient_attribute_name = 'bmiLatest'
+        
+    def transform(self, X, **transform_params):
+        conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '39156-5'}])
+        bmis = list(filter(conditions, X))
+        bmis = sorted(bmis, reverse=True)
+        if len(bmis) >= 1:
+            return self.patient_attribute_name, float(bmis[0].valueQuantity['value'])
+        else:
+            return self.patient_attribute_name, 0.0
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+class ObservationLatestWeightProcessor(BaseEstimator):
+    """
+    Class to transform the FHIR observation resource with loinc code 29463-7 (body weight)
+    to be usable as patient feature.
+    """
+    def __init__(self):
+        self.patient_attribute_name = 'weightLatest'
+        
+    def transform(self, X, **transform_params):
+        conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '29463-7'}])
+        weights = list(filter(conditions, X))
+        weights = sorted(weights, reverse=True)
+        if len(weights) >= 1:
+            return self.patient_attribute_name, float(weights[0].valueQuantity['value'])
+        else:
+            return self.patient_attribute_name, 0.0
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+class ObservationLatestHeightProcessor(BaseEstimator):
+    """
+    Class to transform the FHIR observation resource with loinc code 8302-2 (body height)
+    to be usable as patient feature.
+    """
+    def __init__(self):
+        self.patient_attribute_name = 'heightLatest'
+        
+    def transform(self, X, **transform_params):
+        condition = conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '8302-2'}])
+        heights = list(filter(condition, X))
+        heights = sorted(heights, reverse=True)
+        if len(heights) >= 1:
+            return self.patient_attribute_name, float(heights[0].valueQuantity['value'])
+        else:
+            return self.patient_attribute_name, 0.0
 
     def fit(self, X, y=None, **fit_params):
         return self
