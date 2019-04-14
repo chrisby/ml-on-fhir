@@ -13,6 +13,7 @@ Getting Started
 ^^^^^^^^^^^^^^^
 
 To connect to a FHIR server create a FHIRClient object and provide its BaseULR
+
 .. codeblock:: python
     :linenos:
 
