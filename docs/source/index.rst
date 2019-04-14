@@ -42,6 +42,7 @@ ID     code         display                                     system
 =====  ===========  ==========================================  =========
 
 Similarily, we can receive a list of available **conditions** via::
+
    conditions = client.get_all_conditions()
    pd.DataFrame([cond.code['coding'][0] for cond in conditions]).drop_duplicates(subset=['display']).sort_values(by='display', ascending=True).head()
    
