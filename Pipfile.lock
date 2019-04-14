@@ -192,7 +192,7 @@
                 "sha256:b85e4de3d54cf4f14fe1d0515a980ccb49ddd4cdd21250cc0d4fb6374d50b1a7",
                 "sha256:ddb713d15a3205d7d3beab11f7fa9e3b10dbe0a2fff034a7db22ec8a2bc47a8b"
             ],
-            "version": "==5.7.0"
+            "version": ">=5.7.8"
         },
         "numpy": {
             "hashes": [
