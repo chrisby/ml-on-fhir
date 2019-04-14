@@ -5,8 +5,12 @@ Here is some text::
 
     print('test')
 
-Guide
-^^^^^
+### Installation
+TODO
+
+### Getting Started
+TODO
+
 .. toctree::
    :maxdepth: 2
 
