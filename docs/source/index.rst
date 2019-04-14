@@ -15,13 +15,3 @@ TODO
 
 .. toctree::
    :maxdepth: 2
-
-   license.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
