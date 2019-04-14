@@ -5,10 +5,12 @@ Here is some text::
 
     print('test')
 
-### Installation
+Installation
+^^^^^^^^^^^^
 TODO
 
-### Getting Started
+Getting Started
+^^^^^^^^^^^^^^^
 TODO
 
 .. toctree::
