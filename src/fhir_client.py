@@ -34,7 +34,8 @@ class FHIRClient():
         self.get_capability_statement()
 
         # On success we tell the user
-        logger.info(f"Capability statement of {service_base_url} was successfully received.")
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            logger.info(f"Capability statement of {service_base_url} was successfully received.")
 
     @property
     def observation_preprocessors(self):
