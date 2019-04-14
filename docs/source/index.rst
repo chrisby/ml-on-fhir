@@ -33,23 +33,12 @@ Before querying patients that belong to a specific cohort, we can get an overvie
 
 This might take a while but will give you an overview of available procedures. E.g.
 
-=====  ========  =======  =========
-ID     code      display  system
-=====  ========  =======  =========
-893	183450002	Admission to burn unit	http://snomed.info/sct
-1911	305340004	Admission to long stay hospital	http://snomed.info/sct
-83	305428000	Admission to orthopedic department	http://snomed.info/sct
-6217	305433001	Admission to trauma surgery department	http://snomed.info/sct
-13687	35637008	Alcohol rehabilitation	http://snomed.info/sct
-=====  =======  =======  ==========
-
-=====  =====  ======
-   Inputs     Output
-------------  ------
-  A      B    A or B
-=====  =====  ======
-False  False  False
-True   False  True
-False  True   True
-True   True   True
-=====  =====  ======
+=====  ===========  ==========================================  =========
+ID     code         display                                     system
+=====  ===========  ==========================================  =========
+893    183450002    Admission to burn unit                      http://snomed.info/sct
+1911   305340004    Admission to long stay hospital             http://snomed.info/sct
+83     305428000    Admission to orthopedic department          http://snomed.info/sct
+6217   305433001    Admission to trauma surgery department      http://snomed.info/sct
+13687  35637008     Alcohol rehabilitation                      http://snomed.info/sct
+=====  ===========  ==========================================  =========
