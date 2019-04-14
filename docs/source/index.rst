@@ -12,7 +12,7 @@ TODO
 Getting Started
 ^^^^^^^^^^^^^^^
 
-To connect to a FHIR server create a FHIRClient object and provide its BaseULR::
+To connect to a FHIR server create a FHIRClient object and provide its BaseULR:: python
     :linenos:
 
     from fhir_client import FHIRClient
