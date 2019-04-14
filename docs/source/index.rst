@@ -22,8 +22,8 @@ To connect to a FHIR server, create a ``FHIRClient`` object and provide its ``Ba
 
 The server's compatibility statement is queried to determine whether the connection was sucessful established.
 
-Query Patients
---------------
+Get an Overview of your Data
+------------------------------
 
 Before querying patients that belong to a specific cohort, we can get an overview of available **procedures** and via::
 
@@ -53,4 +53,12 @@ ID     code         display                                     system
 140    102594003    Abnormal ECG                                http://snomed.info/sct
 6801   26079004     Abnormal involuntary movement               http://snomed.info/sct
 =====  ===========  ==========================================  =========
+   
+Query Patients
+--------------
+
+With a list of available conditions we can query patients for which a certain condition was diagnosed. To do so we can either use the code of a coding nomenclature (e.g. *SNOMED*) or its readable name::
+   patients_by_condition_text = client.get_patients_by_condition_text("Abdominal pain")
+   patients_by_procedure_code = client.get_patients_by_procedure_code("http://snomed.info/sct","73761001")
+
    
