@@ -58,6 +58,7 @@ Query Patients
 --------------
 
 With a list of available conditions we can query patients for which a certain condition was diagnosed. To do so we can either use the code of a coding nomenclature (e.g. *SNOMED*) or its readable name::
+
    patients_by_condition_text = client.get_patients_by_condition_text("Abdominal pain")
    patients_by_procedure_code = client.get_patients_by_procedure_code("http://snomed.info/sct","73761001")
 
