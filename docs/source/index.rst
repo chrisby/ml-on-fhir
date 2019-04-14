@@ -42,3 +42,14 @@ ID     code      display  system
 6217	305433001	Admission to trauma surgery department	http://snomed.info/sct
 13687	35637008	Alcohol rehabilitation	http://snomed.info/sct
 =====  =======  =======  ==========
+
+=====  =====  ======
+   Inputs     Output
+------------  ------
+  A      B    A or B
+=====  =====  ======
+False  False  False
+True   False  True
+False  True   True
+True   True   True
+=====  =====  ======
