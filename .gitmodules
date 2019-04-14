@@ -1,3 +1,0 @@
-[submodule "hapi"]
-	path = hapi
-	url = https://github.com/smart-on-fhir/hapi.git
