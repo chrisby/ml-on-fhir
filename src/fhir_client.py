@@ -3,6 +3,7 @@ from fhir_objects.patient import Patient
 from fhir_objects.condition import Condition
 from fhir_objects.observation import Observation
 from fhir_objects.procedure import Procedure
+from preprocessing import register_preprocessor
 import time
 import importlib.util
 
@@ -19,7 +20,7 @@ class FHIRClient():
         Helper class to perform requests to a FHIR server.
 
         Attributes:
-            server_url (str): Base url to be used for all requests (e.g. http://localhost:8080/baseR4)
+            server_url (str): Base url to be used for all requests (e.g. https://r3.smarthealthit.org)
             logger (logging.Logger): Logger to be used
             preprocessor (module): Preprocessor module to be used
         """
@@ -28,6 +29,13 @@ class FHIRClient():
         self.logger = logger
         self.preprocessor = preprocessor
         self.observation_preprocessors = None
+
+        # On initialization request the capability statement from the server
+        self.get_capability_statement()
+
+        # On success we tell the user
+        if self.logger and self.logger.isEnabledFor(logging.INFO):
+            logger.info(f"Capability statement of {service_base_url} was successfully received.")
 
     @property
     def observation_preprocessors(self):

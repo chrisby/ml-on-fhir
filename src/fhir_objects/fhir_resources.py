@@ -1,3 +1,7 @@
+"""
+Variables that define global properties of the module
+"""
+
 patient_resources = ['identifier', 'resourceType', 'id', 'active', 'gender', 'name',
                      'birthDate', 'deceased', 'deceased', 'maritalStatus']
 

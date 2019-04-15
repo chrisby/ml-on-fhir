@@ -121,7 +121,7 @@
                 "sha256:74c935a1b8bb9a3947c50a54766a969d4846290e1e788ea44c1392163723c3bd",
                 "sha256:f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4"
             ],
-            "version": "==2.10"
+            "version": ">=2.10.1"
         },
         "jsonschema": {
             "hashes": [
@@ -192,7 +192,7 @@
                 "sha256:b85e4de3d54cf4f14fe1d0515a980ccb49ddd4cdd21250cc0d4fb6374d50b1a7",
                 "sha256:ddb713d15a3205d7d3beab11f7fa9e3b10dbe0a2fff034a7db22ec8a2bc47a8b"
             ],
-            "version": "==5.7.0"
+            "version": ">=5.7.8"
         },
         "numpy": {
             "hashes": [

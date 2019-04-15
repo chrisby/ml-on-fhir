@@ -5,6 +5,12 @@ import datetime as dt
 
 
 class Observation(FHIRBaseObject):
+    """
+    Class that implements FHIR's observation Resource.
+
+    Attributes:
+         All FHIR attributes specified in observation_resources 
+    """
 
     def __init__(self, **kwargs):
         resource_dict = kwargs['resource_dict']
@@ -18,9 +24,8 @@ class Observation(FHIRBaseObject):
     def __lt__(self, other):
         return (self.effectiveDateTime < other.effectiveDateTime)
 
-    def __le__(self,other):
+    def __le__(self, other):
         return(self.effectiveDateTime <= other.effectiveDateTime)
 
-    def __gt__(self,other):
+    def __gt__(self, other):
         return(self.effectiveDateTime > other.effectiveDateTime)
-
