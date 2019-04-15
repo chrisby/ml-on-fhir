@@ -5,6 +5,7 @@ import logging
 import numpy as np
 
 from fhir_objects.patient import Patient
+from preprocessing import Preprocessing
 
 from sklearn.base import BaseEstimator, ClassifierMixin, ClusterMixin
 from sklearn.neighbors import KNeighborsClassifier
@@ -33,8 +34,9 @@ class MLOnFHIR(BaseEstimator):
                              (e.g preprocessing.PatientBirthdateProcessor)
     """
 
-    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str] = [], random_state = 42):
+    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str] = [], random_state = 42, preprocessor: Preprocessing=None):
         self.fhir_class = fhir_class
+        self.preprocessor = preprocessor
         self.label_attrs = label_attrs
         self.feature_attrs = feature_attrs
         self.transformers = (feature_attrs, label_attrs)
@@ -100,13 +102,12 @@ class MLOnFHIR(BaseEstimator):
     @transformers.setter
     def transformers(self, attrs: tuple):
         self._transformers = dict()
-        preprocessing_module = import_module("preprocessing")
         for fhir_attr in attrs[0] + attrs[1]:
             class_name = self._get_preprocessing_classname(
                 self._fhir_class.__name__, fhir_attr)
             try:
                 self._transformers[fhir_attr] = getattr(
-                    preprocessing_module, class_name)()
+                    self._preprocessor, class_name)()
             except AttributeError:
                 raise AttributeError("""Module 'preprocessing' has no attribute {}. 
                     Feel free to implement your custom class in module 'preprocessing' with signature {}(BaseEstimator).
@@ -115,6 +116,19 @@ class MLOnFHIR(BaseEstimator):
     @transformers.deleter
     def transformers(self):
         del self._transformers
+
+    @property
+    def preprocessor(self):
+        return self._preprocessor
+
+    @preprocessor.setter
+    def preprocessor(self, value: Preprocessing):
+        self._preprocessor = value
+
+    @preprocessor.deleter
+    def preprocessor(self):
+        del self._preprocessor
+    
 
     def transform(self, X, **transform_params):
         pass
@@ -172,8 +186,8 @@ class MLOnFHIRClassifier(MLOnFHIR, ClassifierMixin):
         transformers (dict): Dictionary that maps a fhir attribute to its respective transformer class 
                              (e.g preprocessing.PatientBirthdateProcessor)
     """
-    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str], random_state: int = 42):
-        super(MLOnFHIRClassifier, self).__init__(fhir_class, feature_attrs, label_attrs, random_state)
+    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str], random_state: int = 42, preprocessor: Preprocessing=None):
+        super().__init__(fhir_class, feature_attrs, label_attrs, random_state, preprocessor)
         
     def fit(self, data: List[Union[Patient]], sklearn_clf: ClassifierMixin = RandomForestClassifier(), **fit_params):
         """
