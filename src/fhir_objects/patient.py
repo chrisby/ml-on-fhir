@@ -32,7 +32,7 @@ class Patient(FHIRBaseObject):
         """
         Sets observations as patient attributes
         """
-        for preprocessor in self.fhir_client.observation_preprocessors:
+        for preprocessor in self.fhir_client._preprocessor.get_observation_preprocessors():
             attribute, value = preprocessor().fit(
                 self.observations).transform(self.observations)
             setattr(self, attribute, value)

@@ -3,7 +3,8 @@ from fhir_objects.patient import Patient
 from fhir_objects.condition import Condition
 from fhir_objects.observation import Observation
 from fhir_objects.procedure import Procedure
-from preprocessing import register_preprocessor
+#from preprocessing import register_preprocessor
+from preprocessing import Preprocessing
 import time
 import importlib.util
 import numpy as np
@@ -29,7 +30,6 @@ class FHIRClient():
         self.session = requests.Session()
         self.logger = logger
         self.preprocessor = preprocessor
-        self.observation_preprocessors = None
 
         # On initialization request the capability statement from the server
         self.get_capability_statement()
@@ -38,18 +38,6 @@ class FHIRClient():
         if self.logger and self.logger.isEnabledFor(logging.INFO):
             logger.info(f"Capability statement of {service_base_url} was successfully received.")
 
-    @property
-    def observation_preprocessors(self):
-        """List of observation preprocessors"""
-        return self._observation_preprocessors
-
-    @observation_preprocessors.setter
-    def observation_preprocessors(self, preprocessor=None):
-        self._observation_preprocessors = self._preprocessor.get_observation_preprocessors()
-
-    @observation_preprocessors.deleter
-    def observation_preprocessors(self):
-        del self._observation_preprocessors
 
     @property
     def preprocessor(self):
@@ -59,11 +47,7 @@ class FHIRClient():
     @preprocessor.setter
     def preprocessor(self, preprocessor=None):
         if not preprocessor:
-            spec = importlib.util.spec_from_file_location(
-                "preprocessing", "./preprocessing.py")
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            self._preprocessor = module
+            self._preprocessor = Preprocessing()
         else:
             self._preprocessor = preprocessor
 
@@ -111,6 +95,8 @@ class FHIRClient():
             The requests.Response
         """
         url = self._build_url(path, **query_params)
+        if self.logger and self.logger.isEnabledFor(logging.DEBUG):
+            logger.DEBUG(f"Query: {url}")
         if session:
             return session.get(url)
         else:
