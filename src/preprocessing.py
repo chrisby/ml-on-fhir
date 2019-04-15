@@ -179,6 +179,18 @@ class Preprocessing:
         def fit(self, X, y=None, **fit_params):
             return self
 
+    class PatientcaseProcessor(BaseEstimator):
+        """
+        Encodes case/controls into binary values
+        """
+
+        def transform(self, X, **transform_params):
+            return super().transform(X, **transform_params)
+
+        def fit(self, X, y=None, **fit_params):
+            return super().fit(X, y, **fit_params)
+
+
     class ObservationLatestBmiProcessor(AbstractObservationProcessor):
         """
         Class to transform the FHIR observation resource with loinc code 39156-5 (BMI)
