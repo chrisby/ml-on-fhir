@@ -185,10 +185,10 @@ class Preprocessing:
         """
 
         def transform(self, X, **transform_params):
-            return super().transform(X, **transform_params)
+            return X.astype(int)
 
         def fit(self, X, y=None, **fit_params):
-            return super().fit(X, y, **fit_params)
+            return self
 
 
     class ObservationLatestBmiProcessor(AbstractObservationProcessor):
