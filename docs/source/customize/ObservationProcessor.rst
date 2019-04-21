@@ -43,7 +43,8 @@ We can now use the new ``bmiLatest`` feature in a ``MLOnFHIRClassifier`` after r
 
 	client = FHIRClient(service_base_url='https://r3.smarthealthit.org')
 	client.preprocessor.register_preprocessor(ObservationLatestBmiProcessor)
-	ml_fhir = MLOnFHIRClassifier(Patient, feature_attrs=['bmiLatest'], label_attrs=['gender'], preprocessor=preprocessor)
+	ml_fhir = MLOnFHIRClassifier(Patient, feature_attrs=['bmiLatest'],
+	                             label_attrs=['gender'], preprocessor=client.preprocessor)
 
 Note that some patient attributes like ``gender`` are already provided through a similar mechanism with ``PatientProcessors``. Read more about them `here
 <https://ml-on-fhir.readthedocs.io/en/latest/customize/PatientProcessor.html>`_.
