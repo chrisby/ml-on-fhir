@@ -28,6 +28,8 @@ To use patient features in a machine learning task, we will extract them from th
 		def fit(self, X, y=None, **fit_params):
 			return self
 
+.. note:: The name of your ``OberservationProcessor`` should always follow the following scheme: ``Observation<CustomIdentifier>Processor``. 
+
 In line ...
 
 ::
