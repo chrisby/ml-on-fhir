@@ -5,6 +5,8 @@ Welcome to ML on FHIR's documentation!
 
 .. toctree::
    :maxdepth: 2
+
+   extending
    
 Installation
 ^^^^^^^^^^^^
