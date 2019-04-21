@@ -31,6 +31,7 @@ To use patient features in a machine learning task, we will extract them from th
 In line ...
 
 ::
+
 	from ml_on_fhir.fhir_client import FHIRClient
 	client = FHIRClient(service_base_url='https://r3.smarthealthit.org')
 
