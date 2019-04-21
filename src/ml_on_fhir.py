@@ -345,8 +345,8 @@ class MLOnFHIRCluster(MLOnFHIR, ClusterMixin):
         transformers (dict): Dictionary that maps a fhir attribute to its respective transformer class 
                              (e.g preprocessing.PatientBirthdateProcessor)
     """
-    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]=[], random_state: int = 42):
-        super(MLOnFHIRCluster, self).__init__(fhir_class, feature_attrs, label_attrs, random_state)
+    def __init__(self, fhir_class: Union[Patient], feature_attrs: List[str], label_attrs: List[str]=[], random_state: int = 42, preprocessor: Preprocessing=None):
+        super(MLOnFHIRCluster, self).__init__(fhir_class, feature_attrs, label_attrs, random_state, preprocessor)
         
     def fit(self, data: List[Union[Patient]], sklearn_cluster: ClusterMixin = KMeans(), **fit_params):
         """

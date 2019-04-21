@@ -32,6 +32,19 @@ class AbstractObservationProcessor(ABC, BaseEstimator):
     def fit(self, X, y=None, **fit_params):
         return self
 
+class AbstractPatientProcessor(ABC, BaseEstimator):
+    """
+    Abstract class for PatientProcessors
+    """
+    def __init__(self):
+        super().__init__()
+
+    @abstractmethod
+    def transform(self, X, **transform_params):
+        pass
+
+    def fit(self, X, y=None, **fit_params):
+        return self
 
 def get_coding_condition(code_dict_list: list):
     """
@@ -115,25 +128,21 @@ class Preprocessing:
 
     def get_observation_preprocessors(self):
         """
-        Returns a list of registered observation processors.
+        Returns a dict of registered observation processors.
 
         Returns:
-            list: List of classes with the r'Observation[\w]+Processor' signature 
+            dict of str: Class: Dict with registered observation classes
         """
         
         return self.registered_observation_processors.values()
 
-    class PatientProcessorBaseClass(BaseEstimator):
+    class PatientProcessorBaseClass(AbstractPatientProcessor):
         """
         Base class that is used for the generation of Patient Processors 
         """
 
         def transform(self, X, **transform_params):
             return X.astype(float)
-
-        def fit(self, X, y=None, **fit_params):
-            return self
-
 
     def PatientProcessorFactory(self, class_name: str, base_class: Type[PatientProcessorBaseClass]=PatientProcessorBaseClass):
         """
@@ -147,7 +156,7 @@ class Preprocessing:
         return new_cl
 
 
-    class FHIRLabelEncoder(BaseEstimator):
+    class FHIRLabelEncoder(AbstractPatientProcessor):
         """
         This is a simple wrapper of sklearn's LabelEncoder as at the time of
         development it was not compatible with sklearn.compose.ColumnTransfer
@@ -174,7 +183,7 @@ class Preprocessing:
             return super().fit(X, y, **fit_params)
 
 
-    class PatientbirthDateProcessor(BaseEstimator):
+    class PatientbirthDateProcessor(AbstractPatientProcessor):
         """
         Calculates the age to use birthdate as a feature
         """
@@ -183,15 +192,11 @@ class Preprocessing:
             ages = []
             for birthdate in X:
                 b_date = dt.datetime.strptime(birthdate[0], date_format)
-                print(b_date)
                 ages.append([int(
                                 (dt.datetime.now().date() - b_date.date()).days / 365)])
             return np.array(ages)
 
-        def fit(self, X, y=None, **fit_params):
-            return self
-
-    class PatientcaseProcessor(BaseEstimator):
+    class PatientcaseProcessor(AbstractPatientProcessor):
         """
         Encodes case/controls into binary values
         """
@@ -199,26 +204,22 @@ class Preprocessing:
         def transform(self, X, **transform_params):
             return X.astype(int)
 
-        def fit(self, X, y=None, **fit_params):
-            return self
-
-
-    #class ObservationLatestBmiProcessor(AbstractObservationProcessor):
-    #    """
-    #    Class to transform the FHIR observation resource with loinc code 39156-5 (BMI)
-    #    to be usable as patient feature.
-    #    """
-    #    def __init__(self):
-    #        super().__init__('bmiLatest')
-    #        
-    #    def transform(self, X, **transform_params):
-    #        conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '39156-5'}])
-    #        bmis = list(filter(conditions, X))
-    #        bmis = sorted(bmis, reverse=True)
-    #        if len(bmis) >= 1:
-    #            return self.patient_attribute_name, float(bmis[0].valueQuantity['value'])
-    #        else:
-    #            return self.patient_attribute_name, 0.0
+    class ObservationLatestBmiProcessor(AbstractObservationProcessor):
+        """
+        Class to transform the FHIR observation resource with loinc code 39156-5 (BMI)
+        to be usable as patient feature.
+        """
+        def __init__(self):
+            super().__init__('bmiLatest')
+            
+        def transform(self, X, **transform_params):
+            conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '39156-5'}])
+            bmis = list(filter(conditions, X))
+            bmis = sorted(bmis, reverse=True)
+            if len(bmis) >= 1:
+                return self.patient_attribute_name, float(bmis[0].valueQuantity['value'])
+            else:
+                return self.patient_attribute_name, 0.0
 
     class ObservationLatestWeightProcessor(AbstractObservationProcessor):
         """
