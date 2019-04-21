@@ -29,9 +29,8 @@ class AbstractObservationProcessor(ABC, BaseEstimator):
     def transform(self, X, **transform_params):
         pass
 
-    @abstractmethod
     def fit(self, X, y=None, **fit_params):
-        pass
+        return self
 
 
 def get_coding_condition(code_dict_list: list):
@@ -54,14 +53,52 @@ def get_coding_condition(code_dict_list: list):
 
 class Preprocessing:
     def __init__(self):
-        self.registered_observation_processors = []
+        self.registered_observation_processors = {}
 
         # Register Patient Processor for available Observation Processors
         for attr in dir(self):
             if 'Observation' == attr[:len('Observation')]:
-                self.register_preprocessor(getattr(self, attr))
+                self.register_observation_processor(getattr(self, attr))
 
-    def register_preprocessor(self, processor_class: BaseEstimator):
+    def register_observation_processor(self, processor_class: AbstractObservationProcessor):
+        """
+        Registers a new observation processing class with MLOnFhir.
+        Processors with the same class name will be overwritten
+
+        Args:
+            processor_class (AbstractObservationProcessor): Subclass of AbstractObservationProcessor
+        """
+
+        if processor_class.__name__ in self.registered_observation_processors.keys():
+            logging.warning("Preprocessor {} already exists. Will be overridden.".format(
+                processor_class.__name__))
+        
+        try:
+            setattr(self, processor_class.__name__, processor_class)
+            logging.info(f"Processor {processor_class.__name__} added.")
+        except Exception as e:
+            raise(e)
+
+        self.registered_observation_processors[processor_class.__name__] = processor_class
+
+        # Add needed PatientProcessor class
+        logging.info("Adding Patient Processor for {}".format(processor_class.__name__))
+
+        tmp_obj = processor_class()
+        if not hasattr(tmp_obj, 'patient_attribute_name'):
+            del tmp_obj
+            raise ValueError(
+                f"Class {processor_class.__name__} does not have a patient_attribute_name attribute. Will not generate Patient Processor")
+        else:
+            new_name = 'Patient{}Processor'.format(
+                tmp_obj.patient_attribute_name)
+            logging.info(
+                "Name of patient processor will be {}".format(new_name))
+            new_class = self.PatientProcessorFactory(new_name)
+            self.register_patient_preprocessor(new_class)
+
+
+    def register_patient_preprocessor(self, processor_class: BaseEstimator):
         """
         Registers a new preprocessing class with MLOnFhir.
         Preprocessors with the same class name will be overwritten
@@ -69,36 +106,11 @@ class Preprocessing:
         Args:
             processor_class (BaseEstimator): Class that implements sklearn.base.BaseEstimator interface
         """
-        
-        if processor_class.__name__ in self.registered_observation_processors:
-            logging.warning("Preprocessor {} already exists. Will be overridden.".format(
-                preprocessing_class_name))
-
         try:
             setattr(self, processor_class.__name__, processor_class)
             logging.info(f"Processor {processor_class.__name__} added.")
         except Exception as e:
             raise(e)
-
-        if 'Observation' == processor_class.__name__[:len('Observation')]:
-            self.registered_observation_processors.append(processor_class)
-
-        # If a non-patient processor has been registered, we need to add one.
-        if processor_class.__name__[:len("Patient")] != "Patient":
-            logging.info("Adding Patient Processor for {}".format(
-                processor_class.__name__))
-            tmp_obj = processor_class()
-            if not hasattr(tmp_obj, 'patient_attribute_name'):
-                del tmp_obj
-                raise ValueError(
-                    "Class {} does not have a patient_attribute_name attribute. Will not generate Patient Processor")
-            else:
-                new_name = 'Patient{}Processor'.format(
-                    tmp_obj.patient_attribute_name)
-                logging.info(
-                    "Name of patient processor will be {}".format(new_name))
-                new_class = self.PatientProcessorFactory(new_name)
-                self.register_preprocessor(new_class)
 
 
     def get_observation_preprocessors(self):
@@ -109,7 +121,7 @@ class Preprocessing:
             list: List of classes with the r'Observation[\w]+Processor' signature 
         """
         
-        return self.registered_observation_processors
+        return self.registered_observation_processors.values()
 
     class PatientProcessorBaseClass(BaseEstimator):
         """
@@ -191,25 +203,22 @@ class Preprocessing:
             return self
 
 
-    class ObservationLatestBmiProcessor(AbstractObservationProcessor):
-        """
-        Class to transform the FHIR observation resource with loinc code 39156-5 (BMI)
-        to be usable as patient feature.
-        """
-        def __init__(self):
-            super().__init__('bmiLatest')
-            
-        def transform(self, X, **transform_params):
-            conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '39156-5'}])
-            bmis = list(filter(conditions, X))
-            bmis = sorted(bmis, reverse=True)
-            if len(bmis) >= 1:
-                return self.patient_attribute_name, float(bmis[0].valueQuantity['value'])
-            else:
-                return self.patient_attribute_name, 0.0
-
-        def fit(self, X, y=None, **fit_params):
-            return self
+    #class ObservationLatestBmiProcessor(AbstractObservationProcessor):
+    #    """
+    #    Class to transform the FHIR observation resource with loinc code 39156-5 (BMI)
+    #    to be usable as patient feature.
+    #    """
+    #    def __init__(self):
+    #        super().__init__('bmiLatest')
+    #        
+    #    def transform(self, X, **transform_params):
+    #        conditions = get_coding_condition([{'system': 'http://loinc.org', 'code': '39156-5'}])
+    #        bmis = list(filter(conditions, X))
+    #        bmis = sorted(bmis, reverse=True)
+    #        if len(bmis) >= 1:
+    #            return self.patient_attribute_name, float(bmis[0].valueQuantity['value'])
+    #        else:
+    #            return self.patient_attribute_name, 0.0
 
     class ObservationLatestWeightProcessor(AbstractObservationProcessor):
         """
@@ -228,8 +237,6 @@ class Preprocessing:
             else:
                 return self.patient_attribute_name, 0.0
 
-        def fit(self, X, y=None, **fit_params):
-            return self
 
     class ObservationLatestHeightProcessor(AbstractObservationProcessor):
         """
@@ -247,6 +254,3 @@ class Preprocessing:
                 return self.patient_attribute_name, float(heights[0].valueQuantity['value'])
             else:
                 return self.patient_attribute_name, 0.0
-
-        def fit(self, X, y=None, **fit_params):
-            return self

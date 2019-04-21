@@ -3,7 +3,6 @@ from fhir_objects.patient import Patient
 from fhir_objects.condition import Condition
 from fhir_objects.observation import Observation
 from fhir_objects.procedure import Procedure
-#from preprocessing import register_preprocessor
 from preprocessing import Preprocessing
 import time
 import importlib.util
