@@ -68,6 +68,6 @@ TODO
 
 .. toctree::
    :maxdepth: 2
-   :caption: Customize MLonFHIR
+   :caption: Development
 
-   extending
+   customize/index
