@@ -3,11 +3,8 @@ Welcome to ML on FHIR's documentation!
 .. highlight:: python
    :linenothreshold: 1
 
-.. toctree::
-   :maxdepth: 2
 
-   extending
-   
+
 Installation
 ^^^^^^^^^^^^
 TODO
@@ -67,3 +64,10 @@ With a list of available conditions we can query patients for which a certain co
 Machine Learning
 ----------------
 TODO
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Customize MLonFHIR
+
+   extending
