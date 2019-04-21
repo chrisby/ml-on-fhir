@@ -33,14 +33,12 @@ In line 13, we apply the conditions on all observations of a given patient (``X`
 <https://www.hl7.org/fhir/datatypes.html#Quantity>`_ datatype to return the patient's latest BMI measurement.
 
 
-
-::
+We can now use the new ``bmiLatest`` feature in a ``MLOnFHIRClassifier`` after registering in with the ``FHIRClient``.::
 
 	from ml_on_fhir.fhir_client import FHIRClient
+
 	client = FHIRClient(service_base_url='https://r3.smarthealthit.org')
-
 	client.preprocessor.register_preprocessor(ObservationLatestBmiProcessor)
-
 	ml_fhir = MLOnFHIRClassifier(Patient, feature_attrs=['bmiLatest'], label_attrs=['gender'], preprocessor=preprocessor)
 
 Note that some patient attributes like ``gender`` are already provided through a similar mechanism with ``PatientProcessors``. Read more about them `here
