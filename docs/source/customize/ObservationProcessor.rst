@@ -33,7 +33,9 @@ In line 13, we apply the conditions on all observations of a given patient (``X`
 <https://www.hl7.org/fhir/datatypes.html#Quantity>`_ datatype to return the patient's latest BMI measurement.
 
 
-We can now use the new ``bmiLatest`` feature in a ``MLOnFHIRClassifier`` after registering in with the ``FHIRClient``.::
+We can now use the new ``bmiLatest`` feature in a ``MLOnFHIRClassifier`` after registering in with the ``FHIRClient``.
+
+.. code:: python
 
 	from ml_on_fhir.fhir_client import FHIRClient
 
