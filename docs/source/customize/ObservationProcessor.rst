@@ -31,7 +31,7 @@ To use patient features in a machine learning task, we will extract them from th
 In line 9, we define the name of the feature, so we can use it as if it was a patient attribute.
 In line 12, we define the conditions that an observation needs to fulfill to be considered.
 An observation has to fulfill **all** conditions (e.g. coding system has to be ``http://loinc.org`` **and** its code must be ``39156-5``).
-In line 13, we apply the conditions on all observations of a given patient (``X``). Now, we reversely sort the ``Observation`` objects that are left. Observation objects are always sorted by FHIR's ``effectiveDateTime`` attribute. Finally, we use the FHIR `valueQuantity
+In line 13, we apply the conditions on all observations of a given patient (``X``). Now, we reversely sort the ``Observation`` objects that are left. Observation objects are always sorted by FHIR's ``effectiveDateTime`` attribute. Finally, we use the FHIR `quantity
 <https://www.hl7.org/fhir/datatypes.html#Quantity>`_ datatype to return the patient's latest BMI measurement.
 
 
