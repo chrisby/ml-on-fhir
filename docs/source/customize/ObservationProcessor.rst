@@ -1,10 +1,12 @@
 ObservationProcessors
 ^^^^^^^^^^^^^^^^^^^^^
-
+.. highlight:: python
+   :linenothreshold: 1
 
 To use patient features in a machine learning task, we will extract them from the FHIR `Observation Resource 
-<https://www.hl7.org/fhir/observation.html#resource>`_. Depending on how your server is set up, the way we can extract desired observation values might differ. In the following example we will use 'LOINC codes
-<https://loinc.org/>'_ to extract the latest **BMI measurement** of a patient.::
+<https://www.hl7.org/fhir/observation.html#resource>`_. Depending on how your server is set up, the way we can extract desired observation values might differ. In the following example we will use `LOINC codes
+<https://loinc.org/>`_ to extract the latest **BMI measurement** of a patient.::
+	from ml_on_fhir.preprocessing import AbstractObservationProcessor, get_coding_condition
 
     class ObservationLatestBmiProcessor(AbstractObservationProcessor):
         """
