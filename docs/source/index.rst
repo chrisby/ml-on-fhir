@@ -70,4 +70,4 @@ TODO
    :maxdepth: 2
    :caption: Customize MLonFHIR
 
-   extending
+   customize/index
