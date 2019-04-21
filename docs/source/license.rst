@@ -1,4 +1,0 @@
-License
-======
-
-Test license
