@@ -6,6 +6,7 @@ ObservationProcessors
 To use patient features in a machine learning task, we will extract them from the FHIR `Observation Resource 
 <https://www.hl7.org/fhir/observation.html#resource>`_. Depending on how your server is set up, the way we can extract desired observation values might differ. In the following example we will use `LOINC codes
 <https://loinc.org/>`_ to extract the latest **BMI measurement** of a patient.::
+
 	from ml_on_fhir.preprocessing import AbstractObservationProcessor, get_coding_condition
 
 	class ObservationLatestBmiProcessor(AbstractObservationProcessor):
@@ -25,12 +26,10 @@ To use patient features in a machine learning task, we will extract them from th
 			else:
 				return self.patient_attribute_name, 0.0
 
-		def fit(self, X, y=None, **fit_params):
-			return self
 
-.. note:: The name of your ``OberservationProcessor`` should always follow the following scheme: ``Observation<CustomIdentifier>Processor``. 
+.. note:: The name of your ``OberservationProcessor`` should always follow the following naming scheme: ``Observation<CustomIdentifier>``. 
 
-In line ...
+In line 9, we define the name of the feature and how we will reference 
 
 ::
 
