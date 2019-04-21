@@ -26,9 +26,6 @@ To use patient features in a machine learning task, we will extract them from th
 			else:
 				return self.patient_attribute_name, 0.0
 
-
-.. note:: The name of your ``OberservationProcessor`` should always follow the following naming scheme: ``Observation<CustomIdentifier>``. 
-
 In line 9, we define the name of the feature and how we will reference 
 
 ::
