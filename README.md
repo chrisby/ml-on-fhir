@@ -43,7 +43,8 @@ print("{} are cases and {} are controls".format(len([d for d in patients_by_cond
 ```
 
 #### Machine Learning
-In a nutshell: 
+To train a classifier, we need to first tell the `MLOnFHIRClassifier` the type of object which we would like to classify. We can then define features (`feature_attrs`) and labels (`label_attrs`) for our classification task and pass the preprocessor of our current client, so it is clear how to preprocess the features/labels of a patient. We can then simply call `.fit` on the `MLOnFHIRClassifier` instance together with our classifier of choice.
+
 ```python
 from ml_on_fhir import MLOnFHIRClassifier
 from fhir_objects.patient import Patient
