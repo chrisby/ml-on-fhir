@@ -16,7 +16,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-client = FHIRClient(service_base_url='https://r3.smarthealthit.org', logger=None)
+client = FHIRClient(service_base_url='https://r3.smarthealthit.org', logger=logger)
 ```
 
 ##### Querying Patients
