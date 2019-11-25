@@ -33,10 +33,14 @@ patients_by_procedure_code = client.get_patients_by_procedure_code("http://snome
                                                                sum([len(pat.observations) for pat in patients_by_procedure_code]))
 ```
 
-The second one is by text. The searched text will be CodeableConcept.text, Coding.display, or Identifier.type.text:
+The second one is by text. The searched tags are CodeableConcept.text, Coding.display, or Identifier.type.text:
 ```python
 conditions = client.get_all_conditions()
 pd.DataFrame([cond.code['coding'][0] for cond in conditions]).drop_duplicates(subset=['display']).sort_values(by='display', ascending=True).head()
+
+patients_by_condition_text = client.get_patients_by_condition_text("Abdominal pain")
+"Retrieved {} patients with a total of {} observations".format( len(patients_by_condition_text), 
+                                                               sum([len(pat.observations) for pat in patients_by_condition_text]))
 ```
 
 One can also load a control group for a specific cohort of patients. The control group is of equal size of the case cohort (min size: 10) and is composed of randomly sampled patients that do not match the original query. Their class is contained in the .case property of the Patient object.
