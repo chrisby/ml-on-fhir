@@ -29,8 +29,6 @@ pd.DataFrame([prod.code['coding'][0] for prod in procedures]).drop_duplicates().
 
 # Now retrieve patients
 patients_by_procedure_code = client.get_patients_by_procedure_code("http://snomed.info/sct","73761001")
-"Retrieved {} patients with a total of {} observations".format( len(patients_by_procedure_code), 
-                                                               sum([len(pat.observations) for pat in patients_by_procedure_code]))
 ```
 
 The second one is by text. The searched tags are CodeableConcept.text, Coding.display, or Identifier.type.text:
@@ -39,15 +37,12 @@ conditions = client.get_all_conditions()
 pd.DataFrame([cond.code['coding'][0] for cond in conditions]).drop_duplicates(subset=['display']).sort_values(by='display', ascending=True).head()
 
 patients_by_condition_text = client.get_patients_by_condition_text("Abdominal pain")
-"Retrieved {} patients with a total of {} observations".format( len(patients_by_condition_text), 
-                                                               sum([len(pat.observations) for pat in patients_by_condition_text]))
 ```
 
 One can also load a control group for a specific cohort of patients. The control group is of equal size of the case cohort (min size: 10) and is composed of randomly sampled patients that do not match the original query. Their class is contained in the .case property of the Patient object.
 ```python
 patients_by_condition_text_with_controls = client.get_patients_by_condition_text("Abdominal pain", controls=True)
-print("Retrieved {} patients with a total of {} observations".format( len(patients_by_condition_text_with_controls), 
-                                                               sum([len(pat.observations) for pat in patients_by_condition_text_with_controls])))
+
 print("{} are cases and {} are controls".format(len([d for d in patients_by_condition_text_with_controls if d.case]), 
                                                 len([d for d in patients_by_condition_text_with_controls if not d.case])))
 ```
