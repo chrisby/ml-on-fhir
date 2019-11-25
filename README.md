@@ -23,8 +23,14 @@ client = FHIRClient(service_base_url='https://r3.smarthealthit.org', logger=logg
 There are two general ways of searching for patients with specific properties.
 The first one is to search by coding system:
 ```python
+# To receive a list of available procedures:
 procedures = client.get_all_procedures()
 pd.DataFrame([prod.code['coding'][0] for prod in procedures]).drop_duplicates().sort_values(by=['display']).head()
+
+# Now retrieve patients
+patients_by_procedure_code = client.get_patients_by_procedure_code("http://snomed.info/sct","73761001")
+"Retrieved {} patients with a total of {} observations".format( len(patients_by_procedure_code), 
+                                                               sum([len(pat.observations) for pat in patients_by_procedure_code]))
 ```
 
 The second one is by text. The searched text will be CodeableConcept.text, Coding.display, or Identifier.type.text:
