@@ -2,6 +2,8 @@
 
 ## A work in progress library that fuses the HL7 FHIR standard with scikit-learn
 
+Currently this library is only tested on `STU3`, so use with caution when you run a R4 database. We will look more into compatibility checks in the future. 
+
 Read more about internals and extendability in the [readthedocs](https://ml-on-fhir.readthedocs.io/en/latest/).
 
 ### Usage (taken from [our demo notebook](https://github.com/chrisby/ml-on-fhir/blob/master/src/Demo.ipynb))
